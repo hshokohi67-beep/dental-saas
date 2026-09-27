@@ -1,22 +1,19 @@
 "use client";
 
-import type { DentalCondition, GroupedFinding, OdontogramTooth } from "@/types/dental";
-import { QuadrantButton } from "./QuadrantButton";
+import type { DentalCondition, GroupedFinding, OdontogramTooth, SurfaceRegion } from "@/types/dental";
+import { ChartScopeButton } from "./ChartScopeButton";
 import { ToothShape } from "./ToothShape";
 
 interface OdontogramProps {
   patientId: string;
   teeth: OdontogramTooth[];
   quadrantFindings: GroupedFinding[];
+  archFindings: GroupedFinding[];
   selectedFdi: number | null;
   onSelectTooth: (tooth: OdontogramTooth) => void;
   onChanged: () => void;
   activeCondition: DentalCondition | null;
-  pendingTeeth: Set<number>;
-  pendingQuadrants: Set<number>;
-  pendingArches: Set<"upper" | "lower">;
-  onToggleQuadrant: (quadrant: number) => void;
-  onToggleArch: (arch: "upper" | "lower") => void;
+  pendingTeeth: Map<number, Set<SurfaceRegion>>;
 }
 
 export function sortForDisplay(teeth: OdontogramTooth[], screenSide: "left" | "right"): OdontogramTooth[] {
@@ -34,8 +31,12 @@ function rowTeeth(teeth: OdontogramTooth[], arch: "upper" | "lower", dentition: 
   return [...left, ...right];
 }
 
-function findingsFor(quadrantFindings: GroupedFinding[], quadrant: number) {
+function findingsForQuadrant(quadrantFindings: GroupedFinding[], quadrant: number) {
   return quadrantFindings.find((group) => group.quadrant === quadrant)?.conditions ?? [];
+}
+
+function findingsForArch(archFindings: GroupedFinding[], arch: "upper" | "lower") {
+  return archFindings.find((group) => group.arch === arch)?.conditions ?? [];
 }
 
 /** Front teeth (incisors/canines) are anatomically narrower than molars — smaller here too, and it buys back row width. */
@@ -54,7 +55,7 @@ function ToothRow({
   teeth: OdontogramTooth[];
   selectedFdi: number | null;
   activeCondition: DentalCondition | null;
-  pendingTeeth: Set<number>;
+  pendingTeeth: Map<number, Set<SurfaceRegion>>;
   onSelectTooth: (tooth: OdontogramTooth) => void;
 }) {
   if (teeth.length === 0) return null;
@@ -113,36 +114,6 @@ function ColorLegend() {
   );
 }
 
-function ArchBar({
-  label,
-  arch,
-  isQuickTarget,
-  isPending,
-  onToggle,
-}: {
-  label: string;
-  arch: "upper" | "lower";
-  isQuickTarget: boolean;
-  isPending: boolean;
-  onToggle: (arch: "upper" | "lower") => void;
-}) {
-  if (!isQuickTarget) {
-    return <div className="rounded-lg bg-muted/10 py-1 text-center text-xs font-bold text-muted">{label}</div>;
-  }
-
-  return (
-    <button
-      type="button"
-      onClick={() => onToggle(arch)}
-      className={`w-full rounded-lg py-1 text-center text-xs font-bold ${
-        isPending ? "bg-primary/10 text-primary ring-1 ring-primary" : "bg-muted/10 text-muted"
-      }`}
-    >
-      {label}
-    </button>
-  );
-}
-
 /**
  * Rendered in the clinical/mirrored convention (business rules §1.2): the
  * patient's right side is drawn on the screen's left half. This container
@@ -153,44 +124,43 @@ export function Odontogram({
   patientId,
   teeth,
   quadrantFindings,
+  archFindings,
   selectedFdi,
   onSelectTooth,
   onChanged,
   activeCondition,
   pendingTeeth,
-  pendingQuadrants,
-  pendingArches,
-  onToggleQuadrant,
-  onToggleArch,
 }: OdontogramProps) {
   const hasPrimary = teeth.some((tooth) => tooth.dentition === "primary");
-  const quadrantQuickMode = activeCondition?.scope === "half_arch";
-  const archQuickMode = activeCondition?.scope === "arch";
 
   return (
     <div dir="ltr" className="space-y-2 rounded-xl border border-border bg-white p-4">
-      <ArchBar label="فک بالا" arch="upper" isQuickTarget={archQuickMode} isPending={pendingArches.has("upper")} onToggle={onToggleArch} />
+      <ChartScopeButton
+        patientId={patientId}
+        label="فک بالا"
+        catalogScope="arch"
+        recordParams={{ scope_type: "arch", arch: "upper" }}
+        findings={findingsForArch(archFindings, "upper")}
+        onChanged={onChanged}
+        fullWidth
+      />
 
       <div className="flex items-center justify-between gap-2">
-        <QuadrantButton
+        <ChartScopeButton
           patientId={patientId}
-          quadrant={1}
           label="نیم‌فک راست بالا"
-          findings={findingsFor(quadrantFindings, 1)}
+          catalogScope="half_arch"
+          recordParams={{ scope_type: "quadrant", quadrant: 1 }}
+          findings={findingsForQuadrant(quadrantFindings, 1)}
           onChanged={onChanged}
-          quickMode={quadrantQuickMode}
-          isPending={pendingQuadrants.has(1)}
-          onQuickToggle={() => onToggleQuadrant(1)}
         />
-        <QuadrantButton
+        <ChartScopeButton
           patientId={patientId}
-          quadrant={2}
           label="نیم‌فک چپ بالا"
-          findings={findingsFor(quadrantFindings, 2)}
+          catalogScope="half_arch"
+          recordParams={{ scope_type: "quadrant", quadrant: 2 }}
+          findings={findingsForQuadrant(quadrantFindings, 2)}
           onChanged={onChanged}
-          quickMode={quadrantQuickMode}
-          isPending={pendingQuadrants.has(2)}
-          onQuickToggle={() => onToggleQuadrant(2)}
         />
       </div>
 
@@ -239,29 +209,33 @@ export function Odontogram({
       </div>
 
       <div className="flex items-center justify-between gap-2">
-        <QuadrantButton
+        <ChartScopeButton
           patientId={patientId}
-          quadrant={4}
           label="نیم‌فک راست پایین"
-          findings={findingsFor(quadrantFindings, 4)}
+          catalogScope="half_arch"
+          recordParams={{ scope_type: "quadrant", quadrant: 4 }}
+          findings={findingsForQuadrant(quadrantFindings, 4)}
           onChanged={onChanged}
-          quickMode={quadrantQuickMode}
-          isPending={pendingQuadrants.has(4)}
-          onQuickToggle={() => onToggleQuadrant(4)}
         />
-        <QuadrantButton
+        <ChartScopeButton
           patientId={patientId}
-          quadrant={3}
           label="نیم‌فک چپ پایین"
-          findings={findingsFor(quadrantFindings, 3)}
+          catalogScope="half_arch"
+          recordParams={{ scope_type: "quadrant", quadrant: 3 }}
+          findings={findingsForQuadrant(quadrantFindings, 3)}
           onChanged={onChanged}
-          quickMode={quadrantQuickMode}
-          isPending={pendingQuadrants.has(3)}
-          onQuickToggle={() => onToggleQuadrant(3)}
         />
       </div>
 
-      <ArchBar label="فک پایین" arch="lower" isQuickTarget={archQuickMode} isPending={pendingArches.has("lower")} onToggle={onToggleArch} />
+      <ChartScopeButton
+        patientId={patientId}
+        label="فک پایین"
+        catalogScope="arch"
+        recordParams={{ scope_type: "arch", arch: "lower" }}
+        findings={findingsForArch(archFindings, "lower")}
+        onChanged={onChanged}
+        fullWidth
+      />
 
       <ColorLegend />
     </div>

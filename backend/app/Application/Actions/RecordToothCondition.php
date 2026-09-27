@@ -35,17 +35,13 @@ class RecordToothCondition
                 'recorded_at' => now(),
             ]);
 
-            $where = match ($data['scope_type']) {
-                'tooth' => "دندان {$data['tooth_number']}",
-                'quadrant' => "کوادرانت {$data['quadrant']}",
-                'arch' => $data['arch'] === 'upper' ? 'فک بالا' : 'فک پایین',
-                default => 'کل دهان',
-            };
+            $where = $this->describeScope($data);
+            $surfaceNote = $this->describeSurfaces($data);
 
             PatientTimelineRecorder::record(
                 $patient,
                 PatientTimelineEvent::TYPE_TOOTH_CONDITION_RECORDED,
-                "«{$condition->label}» روی {$where} ثبت شد.",
+                "«{$condition->label}» روی {$where}{$surfaceNote} ثبت شد.",
                 ['patient_tooth_condition_id' => $link->id, 'condition_key' => $condition->key],
             );
 
@@ -79,4 +75,60 @@ class RecordToothCondition
             ]);
         }
     }
+
+    /**
+     * The patient-perspective label required by business rules §1.2 — a raw
+     * FDI number (e.g. "17") means nothing to clinical staff reading the
+     * timeline; "7 بالا راست" (position, arch, patient side) is what the
+     * chart itself displays.
+     *
+     * @param  array{scope_type: string, tooth_number?: ?int, quadrant?: ?int, arch?: ?string}  $data
+     */
+    private function describeScope(array $data): string
+    {
+        return match ($data['scope_type']) {
+            'tooth' => $this->describeTooth(ToothNumber::fromFdi($data['tooth_number'])),
+            'quadrant' => self::QUADRANT_LABELS[$data['quadrant']] ?? "نیم‌فک {$data['quadrant']}",
+            'arch' => $data['arch'] === 'upper' ? 'فک بالا' : 'فک پایین',
+            default => 'کل دهان',
+        };
+    }
+
+    private function describeTooth(ToothNumber $tooth): string
+    {
+        $arch = $tooth->arch() === 'upper' ? 'بالا' : 'پایین';
+        $side = $tooth->patientSide() === 'right' ? 'راست' : 'چپ';
+
+        return "دندان {$tooth->displayLabel()} {$arch} {$side}";
+    }
+
+    /**
+     * @param  array{scope_type: string, surfaces?: ?array}  $data
+     */
+    private function describeSurfaces(array $data): string
+    {
+        if ($data['scope_type'] !== 'tooth' || empty($data['surfaces'])) {
+            return '';
+        }
+
+        $labels = array_map(fn (string $surface) => self::SURFACE_LABELS[$surface] ?? $surface, $data['surfaces']);
+
+        return ' (سطح '.implode('، ', $labels).')';
+    }
+
+    private const QUADRANT_LABELS = [
+        1 => 'نیم‌فک راست بالا',
+        2 => 'نیم‌فک چپ بالا',
+        3 => 'نیم‌فک چپ پایین',
+        4 => 'نیم‌فک راست پایین',
+    ];
+
+    private const SURFACE_LABELS = [
+        'mesial' => 'مزیال',
+        'distal' => 'دیستال',
+        'occlusal' => 'اکلوزال',
+        'incisal' => 'اینسایزال',
+        'buccal' => 'باکال',
+        'lingual' => 'لینگوال',
+    ];
 }

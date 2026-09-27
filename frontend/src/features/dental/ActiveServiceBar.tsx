@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button } from "@/components/Button";
 import { listDentalConditions } from "@/services/dental";
 import type { DentalCondition } from "@/types/dental";
 import { ConditionPicker } from "./ConditionPicker";
@@ -9,21 +8,21 @@ import { ConditionPicker } from "./ConditionPicker";
 interface ActiveServiceBarProps {
   activeConditionId: string;
   onSelect: (condition: DentalCondition | null) => void;
-  onRecordWholeMouth: (condition: DentalCondition) => void;
-  isBusy: boolean;
 }
 
 /**
- * "Lock" a service once here, then apply it to as many teeth/quadrants/jaws
- * as needed on the chart below without reopening this picker each time —
+ * "Lock" a tooth-level service once here, then apply it to as many teeth as
+ * needed on the chart below without reopening this picker each time —
  * picking a different chip swaps the active service and the chart clears
- * whatever was mid-selection for the previous one.
+ * whatever was mid-selection for the previous one. Only tooth-scoped
+ * services live here; quadrant/jaw/whole-mouth services have their own
+ * click-to-open button right where they belong on the chart.
  */
-export function ActiveServiceBar({ activeConditionId, onSelect, onRecordWholeMouth, isBusy }: ActiveServiceBarProps) {
+export function ActiveServiceBar({ activeConditionId, onSelect }: ActiveServiceBarProps) {
   const [conditions, setConditions] = useState<DentalCondition[]>([]);
 
   useEffect(() => {
-    listDentalConditions().then((response) => setConditions(response.data));
+    listDentalConditions({ scope: "tooth" }).then((response) => setConditions(response.data));
   }, []);
 
   const active = conditions.find((condition) => condition.id === activeConditionId) ?? null;
@@ -41,17 +40,17 @@ export function ActiveServiceBar({ activeConditionId, onSelect, onRecordWholeMou
             <span className="rounded-full border border-primary bg-primary/10 px-2 py-1 font-medium text-primary">
               فعال: {active.label}
             </span>
-            {active.scope === "whole_mouth" && (
-              <Button type="button" onClick={() => onRecordWholeMouth(active)} disabled={isBusy}>
-                ثبت برای کل دهان
-              </Button>
-            )}
             <button type="button" className="text-muted" onClick={() => onSelect(null)}>
               لغو
             </button>
           </div>
         )}
       </div>
+
+      <p className="mb-2 text-xs text-muted">
+        برای ثبت سریع‌تر: ابتدا خدمت موردنظر را از فهرست زیر انتخاب کنید (قفل می‌شود)، سپس دندان(های) موردنظر را روی
+        چارت انتخاب و «تأیید» را بزنید. برای پایان دادن به حالت ثبت سریع، دوباره روی همان خدمت کلیک کنید.
+      </p>
 
       <ConditionPicker conditions={conditions} value={activeConditionId} onChange={handleChange} />
     </div>

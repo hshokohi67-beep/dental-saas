@@ -168,10 +168,10 @@ export function Odontogram({
   const archQuickMode = activeCondition?.scope === "arch";
 
   return (
-    <div dir="ltr" className="space-y-3 rounded-xl border border-border bg-white p-4">
+    <div dir="ltr" className="space-y-2 rounded-xl border border-border bg-white p-4">
       <ArchBar label="فک بالا" arch="upper" isQuickTarget={archQuickMode} isPending={pendingArches.has("upper")} onToggle={onToggleArch} />
 
-      <div className="flex items-start justify-between gap-2">
+      <div className="flex items-center justify-between gap-2">
         <QuadrantButton
           patientId={patientId}
           quadrant={1}
@@ -182,26 +182,6 @@ export function Odontogram({
           isPending={pendingQuadrants.has(1)}
           onQuickToggle={() => onToggleQuadrant(1)}
         />
-        <div className="min-w-0 flex-1 overflow-x-auto">
-          <div className="mx-auto flex w-max flex-col items-center gap-1">
-            {hasPrimary && (
-              <ToothRow
-                teeth={rowTeeth(teeth, "upper", "primary")}
-                selectedFdi={selectedFdi}
-                activeCondition={activeCondition}
-                pendingTeeth={pendingTeeth}
-                onSelectTooth={onSelectTooth}
-              />
-            )}
-            <ToothRow
-              teeth={rowTeeth(teeth, "upper", "permanent")}
-              selectedFdi={selectedFdi}
-              activeCondition={activeCondition}
-              pendingTeeth={pendingTeeth}
-              onSelectTooth={onSelectTooth}
-            />
-          </div>
-        </div>
         <QuadrantButton
           patientId={patientId}
           quadrant={2}
@@ -214,9 +194,51 @@ export function Odontogram({
         />
       </div>
 
+      <div className="overflow-x-auto">
+        <div className="mx-auto flex w-max flex-col items-center gap-1">
+          {hasPrimary && (
+            <ToothRow
+              teeth={rowTeeth(teeth, "upper", "primary")}
+              selectedFdi={selectedFdi}
+              activeCondition={activeCondition}
+              pendingTeeth={pendingTeeth}
+              onSelectTooth={onSelectTooth}
+            />
+          )}
+          <ToothRow
+            teeth={rowTeeth(teeth, "upper", "permanent")}
+            selectedFdi={selectedFdi}
+            activeCondition={activeCondition}
+            pendingTeeth={pendingTeeth}
+            onSelectTooth={onSelectTooth}
+          />
+        </div>
+      </div>
+
       <div className="h-px w-full border-t border-dashed border-border" />
 
-      <div className="flex items-start justify-between gap-2">
+      <div className="overflow-x-auto">
+        <div className="mx-auto flex w-max flex-col items-center gap-1">
+          <ToothRow
+            teeth={rowTeeth(teeth, "lower", "permanent")}
+            selectedFdi={selectedFdi}
+            activeCondition={activeCondition}
+            pendingTeeth={pendingTeeth}
+            onSelectTooth={onSelectTooth}
+          />
+          {hasPrimary && (
+            <ToothRow
+              teeth={rowTeeth(teeth, "lower", "primary")}
+              selectedFdi={selectedFdi}
+              activeCondition={activeCondition}
+              pendingTeeth={pendingTeeth}
+              onSelectTooth={onSelectTooth}
+            />
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between gap-2">
         <QuadrantButton
           patientId={patientId}
           quadrant={4}
@@ -227,26 +249,6 @@ export function Odontogram({
           isPending={pendingQuadrants.has(4)}
           onQuickToggle={() => onToggleQuadrant(4)}
         />
-        <div className="min-w-0 flex-1 overflow-x-auto">
-          <div className="mx-auto flex w-max flex-col items-center gap-1">
-            <ToothRow
-              teeth={rowTeeth(teeth, "lower", "permanent")}
-              selectedFdi={selectedFdi}
-              activeCondition={activeCondition}
-              pendingTeeth={pendingTeeth}
-              onSelectTooth={onSelectTooth}
-            />
-            {hasPrimary && (
-              <ToothRow
-                teeth={rowTeeth(teeth, "lower", "primary")}
-                selectedFdi={selectedFdi}
-                activeCondition={activeCondition}
-                pendingTeeth={pendingTeeth}
-                onSelectTooth={onSelectTooth}
-              />
-            )}
-          </div>
-        </div>
         <QuadrantButton
           patientId={patientId}
           quadrant={3}

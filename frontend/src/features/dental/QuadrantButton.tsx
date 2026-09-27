@@ -5,6 +5,7 @@ import { Button } from "@/components/Button";
 import { ApiError } from "@/lib/api";
 import { listDentalConditions, recordToothCondition, voidToothCondition } from "@/services/dental";
 import type { DentalCondition, ToothConditionEntry } from "@/types/dental";
+import { ConditionPicker } from "./ConditionPicker";
 
 interface QuadrantButtonProps {
   patientId: string;
@@ -83,18 +84,7 @@ export function QuadrantButton({ patientId, quadrant, label, findings, onChanged
 
           {error && <p className="text-red-600">{error}</p>}
 
-          <select
-            value={conditionId}
-            onChange={(event) => setConditionId(event.target.value)}
-            className="w-full rounded-lg border border-border px-2 py-1 text-xs"
-          >
-            <option value="">انتخاب خدمت...</option>
-            {conditions.map((condition) => (
-              <option key={condition.id} value={condition.id}>
-                {condition.label}
-              </option>
-            ))}
-          </select>
+          <ConditionPicker conditions={conditions} value={conditionId} onChange={setConditionId} className="text-xs" />
           <Button type="button" disabled={!conditionId} onClick={handleAdd} className="w-full text-xs">
             افزودن
           </Button>

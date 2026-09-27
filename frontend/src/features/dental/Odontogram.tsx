@@ -32,6 +32,12 @@ function findingsFor(quadrantFindings: GroupedFinding[], quadrant: number) {
   return quadrantFindings.find((group) => group.quadrant === quadrant)?.conditions ?? [];
 }
 
+/** Front teeth (incisors/canines) are anatomically narrower than molars — smaller here too, and it buys back row width. */
+function toothSize(tooth: OdontogramTooth): number {
+  if (tooth.dentition === "primary") return tooth.is_anterior ? 18 : 24;
+  return tooth.is_anterior ? 24 : 32;
+}
+
 function ToothRow({
   teeth,
   selectedFdi,
@@ -44,13 +50,13 @@ function ToothRow({
   if (teeth.length === 0) return null;
 
   return (
-    <div className="flex justify-center gap-1">
+    <div className="flex items-end justify-center gap-0.5">
       {teeth.map((tooth) => (
         <ToothShape
           key={tooth.fdi}
           arch={tooth.arch}
           screenSide={tooth.screen_side}
-          size={tooth.dentition === "primary" ? 30 : 42}
+          size={toothSize(tooth)}
           label={tooth.display_label}
           isPrimary={tooth.dentition === "primary"}
           isSelected={selectedFdi === tooth.fdi}
@@ -106,7 +112,7 @@ export function Odontogram({ patientId, teeth, quadrantFindings, selectedFdi, on
     <div dir="ltr" className="space-y-3 rounded-xl border border-border bg-white p-4">
       <div className="rounded-lg bg-muted/10 py-1 text-center text-xs font-bold text-muted">فک بالا</div>
 
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-start justify-between gap-2">
         <QuadrantButton
           patientId={patientId}
           quadrant={1}
@@ -131,7 +137,7 @@ export function Odontogram({ patientId, teeth, quadrantFindings, selectedFdi, on
 
       <div className="h-px w-full border-t border-dashed border-border" />
 
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-start justify-between gap-2">
         <QuadrantButton
           patientId={patientId}
           quadrant={4}

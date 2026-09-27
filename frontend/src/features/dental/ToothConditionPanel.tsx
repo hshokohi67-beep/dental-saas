@@ -5,6 +5,7 @@ import { Button } from "@/components/Button";
 import { ApiError } from "@/lib/api";
 import { listDentalConditions, recordToothCondition, voidToothCondition } from "@/services/dental";
 import type { DentalCondition, OdontogramTooth, SurfaceRegion } from "@/types/dental";
+import { ConditionPicker } from "./ConditionPicker";
 import { ToothShape } from "./ToothShape";
 
 interface ToothConditionPanelProps {
@@ -126,18 +127,13 @@ export function ToothConditionPanel({ patientId, tooth, onChanged, onClose }: To
       </div>
 
       <div className="flex flex-col gap-2 sm:flex-row">
-        <select
+        <ConditionPicker
+          conditions={conditions}
           value={selectedConditionId}
-          onChange={(event) => setSelectedConditionId(event.target.value)}
-          className="w-full rounded-lg border border-border px-3 py-2 text-sm"
-        >
-          <option value="">انتخاب خدمت/وضعیت...</option>
-          {conditions.map((condition) => (
-            <option key={condition.id} value={condition.id}>
-              {condition.label}
-            </option>
-          ))}
-        </select>
+          onChange={setSelectedConditionId}
+          placeholder="جست‌وجوی خدمت/وضعیت..."
+          className="w-full"
+        />
         <input
           value={notes}
           onChange={(event) => setNotes(event.target.value)}

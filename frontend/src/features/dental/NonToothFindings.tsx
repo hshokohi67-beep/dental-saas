@@ -5,6 +5,7 @@ import { Button } from "@/components/Button";
 import { ApiError } from "@/lib/api";
 import { listDentalConditions, recordToothCondition, voidToothCondition } from "@/services/dental";
 import type { DentalCondition, GroupedFinding, ToothConditionEntry } from "@/types/dental";
+import { ConditionPicker } from "./ConditionPicker";
 
 const archLabels: Record<string, string> = { upper: "فک بالا", lower: "فک پایین" };
 
@@ -83,18 +84,7 @@ export function ArchFindings({ patientId, onChanged, findings }: BaseProps & { f
             <option value="upper">فک بالا</option>
             <option value="lower">فک پایین</option>
           </select>
-          <select
-            value={conditionId}
-            onChange={(event) => setConditionId(event.target.value)}
-            className="w-full rounded-lg border border-border px-3 py-2 text-sm"
-          >
-            <option value="">انتخاب خدمت...</option>
-            {conditions.map((condition) => (
-              <option key={condition.id} value={condition.id}>
-                {condition.label}
-              </option>
-            ))}
-          </select>
+          <ConditionPicker conditions={conditions} value={conditionId} onChange={setConditionId} className="w-full" />
           <Button type="button" disabled={!conditionId} onClick={handleAdd}>
             افزودن
           </Button>
@@ -159,18 +149,7 @@ export function WholeMouthFindings({
       {error && <p className="mb-2 text-sm text-red-600">{error}</p>}
 
       <div className="flex gap-2">
-        <select
-          value={conditionId}
-          onChange={(event) => setConditionId(event.target.value)}
-          className="w-full rounded-lg border border-border px-3 py-2 text-sm"
-        >
-          <option value="">انتخاب خدمت...</option>
-          {conditions.map((condition) => (
-            <option key={condition.id} value={condition.id}>
-              {condition.label}
-            </option>
-          ))}
-        </select>
+        <ConditionPicker conditions={conditions} value={conditionId} onChange={setConditionId} className="w-full" />
         <Button type="button" disabled={!conditionId} onClick={handleAdd}>
           افزودن
         </Button>

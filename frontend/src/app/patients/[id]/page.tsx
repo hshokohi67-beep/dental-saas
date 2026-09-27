@@ -7,6 +7,7 @@ import { DentalChartTab } from "@/features/dental/DentalChartTab";
 import { ClinicalAlerts } from "@/features/patients/ClinicalAlerts";
 import { MergePatientDialog } from "@/features/patients/MergePatientDialog";
 import { ApiError } from "@/lib/api";
+import { formatJalaliDate } from "@/lib/jalali";
 import { assignPrimaryDoctor } from "@/services/dental";
 import {
   addAllergy,
@@ -162,7 +163,7 @@ function InfoTab({
       <dl className="grid grid-cols-2 gap-3 text-sm">
         <Field label="کد ملی" value={patient.national_id ?? "—"} />
         <Field label="جنسیت" value={patient.gender ? genderLabels[patient.gender] : "—"} />
-        <Field label="تاریخ تولد" value={patient.date_of_birth ?? "—"} />
+        <Field label="تاریخ تولد" value={formatJalaliDate(patient.date_of_birth)} />
         <Field label="شعبه" value={patient.branch_name ?? "—"} />
         <Field label="وضعیت" value={patient.status === "active" ? "فعال" : patient.status} />
         {patient.merged_from_count > 0 && (

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { JalaliDateField } from "@/components/JalaliDateField";
 import { BookingPanel } from "@/features/scheduling/BookingPanel";
 import { DayQueue } from "@/features/scheduling/DayQueue";
 import { ShiftManager } from "@/features/scheduling/ShiftManager";
@@ -45,12 +46,7 @@ export default function SchedulingPage() {
             </option>
           ))}
         </select>
-        <input
-          type="date"
-          value={date}
-          onChange={(event) => setDate(event.target.value)}
-          className="rounded-lg border border-border px-3 py-2 text-sm"
-        />
+        <JalaliDateField value={date} onChange={setDate} />
       </div>
 
       {!staffId ? (

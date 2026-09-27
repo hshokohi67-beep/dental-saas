@@ -9,6 +9,12 @@ export interface DentalCondition {
   category: string;
   scope: "tooth" | "half_arch" | "arch" | "whole_mouth";
   dentitions: Array<"permanent" | "primary">;
+  status_color: string | null;
+  status_border: string | null;
+  /** Whether this catalog code doubles as a bookable appointment service (roadmap Phase 4). */
+  booking_eligible: boolean;
+  duration_minutes: number | null;
+  buffer_minutes: number;
 }
 
 export interface ToothConditionEntry {

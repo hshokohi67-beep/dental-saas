@@ -40,9 +40,14 @@ export default function HomePage() {
             : "بدون تنانت"}
       </p>
       {user.tenant && (
-        <Link href="/patients" className="text-sm text-primary underline">
-          مدیریت بیماران
-        </Link>
+        <div className="flex gap-4">
+          <Link href="/patients" className="text-sm text-primary underline">
+            مدیریت بیماران
+          </Link>
+          <Link href="/scheduling" className="text-sm text-primary underline">
+            نوبت‌دهی
+          </Link>
+        </div>
       )}
       <Button
         variant="ghost"

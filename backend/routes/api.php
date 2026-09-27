@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\AppointmentAvailabilityController;
+use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\AppointmentStatusController;
+use App\Http\Controllers\AppointmentWaitlistController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\DentalConditionCatalogController;
@@ -17,7 +21,10 @@ use App\Http\Controllers\PatientToothConditionController;
 use App\Http\Controllers\Platform\PlanController;
 use App\Http\Controllers\Platform\TenantController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\RoomController;
 use App\Http\Controllers\StaffController;
+use App\Http\Controllers\StaffLeaveController;
+use App\Http\Controllers\StaffShiftController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -75,5 +82,27 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::post('/patients/{patient}/tooth-conditions', [PatientToothConditionController::class, 'store']);
         Route::delete('/patients/{patient}/tooth-conditions/{toothCondition}', [PatientToothConditionController::class, 'destroy']);
+
+        Route::get('/rooms', [RoomController::class, 'index']);
+        Route::post('/rooms', [RoomController::class, 'store']);
+
+        Route::get('/staff-shifts', [StaffShiftController::class, 'index']);
+        Route::post('/staff-shifts', [StaffShiftController::class, 'store']);
+        Route::delete('/staff-shifts/{shift}', [StaffShiftController::class, 'destroy']);
+
+        Route::get('/staff-leaves', [StaffLeaveController::class, 'index']);
+        Route::post('/staff-leaves', [StaffLeaveController::class, 'store']);
+        Route::delete('/staff-leaves/{leave}', [StaffLeaveController::class, 'destroy']);
+
+        Route::get('/appointments/availability', [AppointmentAvailabilityController::class, 'index']);
+        Route::get('/appointments', [AppointmentController::class, 'index']);
+        Route::post('/appointments', [AppointmentController::class, 'store']);
+        Route::patch('/appointments/{appointment}/check-in', [AppointmentStatusController::class, 'checkIn']);
+        Route::patch('/appointments/{appointment}/complete', [AppointmentStatusController::class, 'complete']);
+        Route::patch('/appointments/{appointment}/cancel', [AppointmentStatusController::class, 'cancel']);
+        Route::patch('/appointments/{appointment}/no-show', [AppointmentStatusController::class, 'noShow']);
+
+        Route::get('/appointment-waitlist', [AppointmentWaitlistController::class, 'index']);
+        Route::post('/appointment-waitlist', [AppointmentWaitlistController::class, 'store']);
     });
 });

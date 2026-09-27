@@ -34,6 +34,18 @@ class PermissionCatalog
 
     public const DENTAL_CHART_ASSIGN_DOCTOR = 'dental.chart.assign_doctor';
 
+    public const SCHEDULING_ROOMS_MANAGE = 'scheduling.rooms.manage';
+
+    public const SCHEDULING_SHIFTS_VIEW = 'scheduling.shifts.view';
+
+    public const SCHEDULING_SHIFTS_MANAGE = 'scheduling.shifts.manage';
+
+    public const APPOINTMENTS_VIEW = 'appointments.view';
+
+    public const APPOINTMENTS_MANAGE = 'appointments.manage';
+
+    public const APPOINTMENTS_WAITLIST_MANAGE = 'appointments.waitlist.manage';
+
     /**
      * @return list<string>
      */
@@ -53,6 +65,12 @@ class PermissionCatalog
             self::DENTAL_CHART_VIEW,
             self::DENTAL_CHART_MANAGE,
             self::DENTAL_CHART_ASSIGN_DOCTOR,
+            self::SCHEDULING_ROOMS_MANAGE,
+            self::SCHEDULING_SHIFTS_VIEW,
+            self::SCHEDULING_SHIFTS_MANAGE,
+            self::APPOINTMENTS_VIEW,
+            self::APPOINTMENTS_MANAGE,
+            self::APPOINTMENTS_WAITLIST_MANAGE,
         ];
     }
 }

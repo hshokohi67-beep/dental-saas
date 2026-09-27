@@ -29,6 +29,12 @@ class DefaultRoles
                 PermissionCatalog::DENTAL_CHART_VIEW,
                 PermissionCatalog::DENTAL_CHART_MANAGE,
                 PermissionCatalog::DENTAL_CHART_ASSIGN_DOCTOR,
+                PermissionCatalog::SCHEDULING_ROOMS_MANAGE,
+                PermissionCatalog::SCHEDULING_SHIFTS_VIEW,
+                PermissionCatalog::SCHEDULING_SHIFTS_MANAGE,
+                PermissionCatalog::APPOINTMENTS_VIEW,
+                PermissionCatalog::APPOINTMENTS_MANAGE,
+                PermissionCatalog::APPOINTMENTS_WAITLIST_MANAGE,
             ],
             // Doctor gets the chart permissions, but DentalChartAccessPolicy still
             // requires them to be the patient's assigned doctor to actually edit
@@ -42,12 +48,17 @@ class DefaultRoles
                 PermissionCatalog::PATIENTS_MEDICAL_MANAGE,
                 PermissionCatalog::DENTAL_CHART_VIEW,
                 PermissionCatalog::DENTAL_CHART_MANAGE,
+                PermissionCatalog::SCHEDULING_SHIFTS_VIEW,
+                PermissionCatalog::APPOINTMENTS_VIEW,
+                PermissionCatalog::APPOINTMENTS_MANAGE,
             ],
             'Assistant' => [
                 PermissionCatalog::BRANCHES_VIEW,
                 PermissionCatalog::PATIENTS_VIEW,
                 PermissionCatalog::PATIENTS_MEDICAL_VIEW,
                 PermissionCatalog::DENTAL_CHART_VIEW,
+                PermissionCatalog::SCHEDULING_SHIFTS_VIEW,
+                PermissionCatalog::APPOINTMENTS_VIEW,
             ],
             // Secretary: intentionally excludes patients.medical.* — the front-desk role
             // never sees clinical tabs (master prompt / legacy business rule §1.8).
@@ -56,6 +67,10 @@ class DefaultRoles
                 PermissionCatalog::STAFF_VIEW,
                 PermissionCatalog::PATIENTS_VIEW,
                 PermissionCatalog::PATIENTS_MANAGE,
+                PermissionCatalog::SCHEDULING_SHIFTS_VIEW,
+                PermissionCatalog::APPOINTMENTS_VIEW,
+                PermissionCatalog::APPOINTMENTS_MANAGE,
+                PermissionCatalog::APPOINTMENTS_WAITLIST_MANAGE,
             ],
             'Accounting' => [
                 PermissionCatalog::BRANCHES_VIEW,

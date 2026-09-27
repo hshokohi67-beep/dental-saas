@@ -21,6 +21,11 @@ class DentalConditionCatalogResource extends JsonResource
             'category' => $this->category,
             'scope' => $this->scope,
             'dentitions' => $this->dentitions,
+            'status_color' => $this->status_color,
+            'status_border' => $this->status_border,
+            'booking_eligible' => $this->booking_eligible,
+            'duration_minutes' => $this->duration_minutes,
+            'buffer_minutes' => $this->buffer_minutes,
         ];
     }
 }

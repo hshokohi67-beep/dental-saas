@@ -41,6 +41,14 @@ class PatientTimelineEvent extends Model
 
     public const TYPE_PRIMARY_DOCTOR_ASSIGNED = 'primary_doctor_assigned';
 
+    public const TYPE_APPOINTMENT_BOOKED = 'appointment_booked';
+
+    public const TYPE_APPOINTMENT_CANCELLED = 'appointment_cancelled';
+
+    public const TYPE_APPOINTMENT_COMPLETED = 'appointment_completed';
+
+    public const TYPE_APPOINTMENT_NO_SHOW = 'appointment_no_show';
+
     protected $fillable = ['tenant_id', 'patient_id', 'type', 'description', 'metadata', 'recorded_by', 'occurred_at'];
 
     protected function casts(): array

@@ -19,6 +19,7 @@ class DentalConditionCatalog extends Model
     protected $fillable = [
         'key', 'label', 'category', 'scope', 'dentitions',
         'status_priority', 'status_color', 'status_border', 'is_active',
+        'booking_eligible', 'duration_minutes', 'buffer_minutes',
     ];
 
     protected function casts(): array
@@ -26,6 +27,7 @@ class DentalConditionCatalog extends Model
         return [
             'dentitions' => 'array',
             'is_active' => 'boolean',
+            'booking_eligible' => 'boolean',
         ];
     }
 

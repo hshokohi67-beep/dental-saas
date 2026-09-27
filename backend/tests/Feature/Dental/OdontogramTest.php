@@ -75,14 +75,14 @@ class OdontogramTest extends TestCase
         $this->assertEquals(['permanent', 'primary'], $dentitions->all());
     }
 
-    public function test_every_tooth_is_clickable_ie_carries_its_fdi_number_and_a_display_label(): void
+    public function test_every_tooth_is_clickable_ie_carries_its_fdi_number_and_a_position_based_display_label(): void
     {
         $response = $this->actingAs($this->manager)->getJson("/api/patients/{$this->patientId}/odontogram");
 
         $tooth11 = collect($response->json('data.teeth'))->firstWhere('fdi', 11);
 
         $this->assertNotNull($tooth11);
-        $this->assertSame('11', $tooth11['display_label']);
+        $this->assertSame('1', $tooth11['display_label']);
         $this->assertSame('left', $tooth11['screen_side']);
     }
 

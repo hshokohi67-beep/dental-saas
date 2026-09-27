@@ -130,10 +130,11 @@ class ToothNumberTest extends TestCase
         ];
     }
 
-    public function test_permanent_teeth_are_displayed_by_their_fdi_number(): void
+    public function test_permanent_teeth_are_displayed_by_their_position_within_the_half_jaw_not_the_fdi_number(): void
     {
-        $this->assertSame('11', ToothNumber::fromFdi(11)->displayLabel());
-        $this->assertSame('48', ToothNumber::fromFdi(48)->displayLabel());
+        $this->assertSame('1', ToothNumber::fromFdi(11)->displayLabel());
+        $this->assertSame('8', ToothNumber::fromFdi(48)->displayLabel());
+        $this->assertSame('5', ToothNumber::fromFdi(25)->displayLabel());
     }
 
     /**

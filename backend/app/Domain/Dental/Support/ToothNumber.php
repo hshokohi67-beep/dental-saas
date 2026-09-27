@@ -117,12 +117,16 @@ final class ToothNumber
     }
 
     /**
-     * Primary teeth are shown to users as letters (A-E), never as their raw
-     * FDI number; permanent teeth are shown as their FDI number.
+     * The on-chart label is always just the tooth's position within its own
+     * half-jaw (1-8 for permanent, A-E for primary) — never the raw
+     * two-digit FDI number, which is a storage/API detail (`fdi`). Which
+     * quadrant a "5" belongs to is conveyed by where it sits on the chart
+     * (grouped under its half-jaw's own label/button), matching how real
+     * clinic charting software displays teeth.
      */
     public function displayLabel(): string
     {
-        return $this->isPermanent() ? (string) $this->fdi : chr(64 + $this->position);
+        return $this->isPermanent() ? (string) $this->position : chr(64 + $this->position);
     }
 
     /**

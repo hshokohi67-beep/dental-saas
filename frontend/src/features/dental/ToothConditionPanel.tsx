@@ -118,11 +118,20 @@ export function ToothConditionPanel({ patientId, tooth, onChanged, onClose }: To
         />
         <div className="space-y-1 text-xs text-muted">
           <p>سطوحی که خدمت روی آن‌ها ثبت می‌شود را روی تصویر دندان انتخاب کنید (اختیاری؛ بدون انتخاب = کل دندان).</p>
-          {Array.from(pendingSurfaces).map((surface) => (
-            <p key={surface} className="font-medium text-foreground">
-              • {surfaceLabels[surface]}
-            </p>
-          ))}
+          <ul className="space-y-0.5">
+            {(Object.keys(surfaceLabels) as SurfaceRegion[]).map((surface) => {
+              const isSelected = pendingSurfaces.has(surface);
+              return (
+                <li
+                  key={surface}
+                  onClick={() => toggleSurface(surface)}
+                  className={`cursor-pointer ${isSelected ? "font-medium text-foreground" : ""}`}
+                >
+                  {isSelected ? "✓" : "○"} {surfaceLabels[surface]}
+                </li>
+              );
+            })}
+          </ul>
         </div>
       </div>
 

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/Button";
+import { JalaliDateField } from "@/components/JalaliDateField";
 import { ApiError } from "@/lib/api";
 import { createPatient, findDuplicatePatients } from "@/services/patients";
 import type { CreatePatientInput, Patient } from "@/types/patient";
@@ -112,13 +113,7 @@ export function PatientForm({ onCreated, onCancel }: PatientFormProps) {
           />
         </Field>
         <Field label="تاریخ تولد (اختیاری)">
-          <input
-            type="date"
-            value={form.date_of_birth}
-            onChange={(event) => update("date_of_birth", event.target.value)}
-            className="w-full rounded-lg border border-border px-3 py-2 text-sm"
-            dir="ltr"
-          />
+          <JalaliDateField value={form.date_of_birth} onChange={(value) => update("date_of_birth", value)} />
         </Field>
       </div>
 

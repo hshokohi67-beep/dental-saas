@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { JalaliDateField } from "@/components/JalaliDateField";
 import { ConditionPicker } from "@/features/dental/ConditionPicker";
 import { ApiError } from "@/lib/api";
 import { listDentalConditions } from "@/services/dental";
@@ -113,12 +114,7 @@ export function BookingPanel({ staffId, onBooked }: BookingPanelProps) {
         </div>
       )}
 
-      <input
-        type="date"
-        value={date}
-        onChange={(event) => setDate(event.target.value)}
-        className="rounded-lg border border-border px-3 py-2 text-sm"
-      />
+      <JalaliDateField value={date} onChange={setDate} />
 
       <ConditionPicker conditions={services} value={serviceId} onChange={setServiceId} placeholder="جست‌وجوی خدمت..." />
 

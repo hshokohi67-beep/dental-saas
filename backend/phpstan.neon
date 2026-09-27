@@ -9,6 +9,14 @@ parameters:
 
     tmpDir: storage/framework/phpstan
 
+    # Every model in this codebase declares casts via the Laravel 11+ `casts(): array`
+    # method rather than the legacy `protected $casts` property. Larastan's runtime
+    # cast introspection (Model::getCasts()) does not see that method's return value
+    # (it's only merged in at attribute-cast time, not in getCasts()), so without this
+    # flag every custom cast is invisible to static analysis and typed accessors like
+    # `$patient->date_of_birth` fall back to their raw DB-column type.
+    parseModelCastsMethod: true
+
     # Larastan infers model properties from the DB schema (NOT NULL columns become
     # non-nullable types). That's wrong for a model's in-memory state *before* it's
     # saved — e.g. an auto-fill-on-creating hook that checks a required column for

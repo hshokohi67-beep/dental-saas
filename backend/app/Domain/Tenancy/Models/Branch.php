@@ -3,6 +3,7 @@
 namespace App\Domain\Tenancy\Models;
 
 use App\Domain\Identity\Models\Staff;
+use App\Domain\Operations\Models\Room;
 use App\Shared\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
@@ -26,13 +27,47 @@ class Branch extends Model
         ];
     }
 
+    protected static function booted(): void
+    {
+        // Every branch gets one default room automatically (roadmap Phase 4
+        // improvement note): a single-chair clinic never has to configure
+        // Room/Unit at all — shifts/appointments fall back to this silently.
+        static::created(function (self $branch) {
+            Room::withoutTenantScope()->create([
+                'tenant_id' => $branch->tenant_id,
+                'branch_id' => $branch->id,
+                'name' => 'اتاق پیش‌فرض',
+                'is_default' => true,
+            ]);
+        });
+    }
+
+    /**
+     * @return BelongsTo<Tenant, $this>
+     */
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class);
     }
 
+    /**
+     * @return HasMany<Staff, $this>
+     */
     public function staff(): HasMany
     {
         return $this->hasMany(Staff::class);
+    }
+
+    /**
+     * @return HasMany<Room, $this>
+     */
+    public function rooms(): HasMany
+    {
+        return $this->hasMany(Room::class);
+    }
+
+    public function defaultRoom(): ?Room
+    {
+        return $this->rooms()->where('is_default', true)->first();
     }
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/Button";
 import { fetchCurrentUser, logout } from "@/services/auth";
@@ -38,6 +39,16 @@ export default function HomePage() {
             ? `تنانت: ${user.tenant.name}`
             : "بدون تنانت"}
       </p>
+      {user.tenant && (
+        <div className="flex gap-4">
+          <Link href="/patients" className="text-sm text-primary underline">
+            مدیریت بیماران
+          </Link>
+          <Link href="/scheduling" className="text-sm text-primary underline">
+            نوبت‌دهی
+          </Link>
+        </div>
+      )}
       <Button
         variant="ghost"
         onClick={() => logout().then(() => router.replace("/login"))}

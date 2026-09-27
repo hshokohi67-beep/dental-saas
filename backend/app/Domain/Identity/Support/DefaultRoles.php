@@ -26,7 +26,13 @@ class DefaultRoles
                 PermissionCatalog::PATIENTS_VIEW,
                 PermissionCatalog::PATIENTS_MANAGE,
                 PermissionCatalog::PATIENTS_MERGE,
+                PermissionCatalog::DENTAL_CHART_VIEW,
+                PermissionCatalog::DENTAL_CHART_MANAGE,
+                PermissionCatalog::DENTAL_CHART_ASSIGN_DOCTOR,
             ],
+            // Doctor gets the chart permissions, but DentalChartAccessPolicy still
+            // requires them to be the patient's assigned doctor to actually edit
+            // (legacy IDOR fix, business rules §1.8) — the permission alone is not enough.
             'Doctor' => [
                 PermissionCatalog::BRANCHES_VIEW,
                 PermissionCatalog::STAFF_VIEW,
@@ -34,11 +40,14 @@ class DefaultRoles
                 PermissionCatalog::PATIENTS_MANAGE,
                 PermissionCatalog::PATIENTS_MEDICAL_VIEW,
                 PermissionCatalog::PATIENTS_MEDICAL_MANAGE,
+                PermissionCatalog::DENTAL_CHART_VIEW,
+                PermissionCatalog::DENTAL_CHART_MANAGE,
             ],
             'Assistant' => [
                 PermissionCatalog::BRANCHES_VIEW,
                 PermissionCatalog::PATIENTS_VIEW,
                 PermissionCatalog::PATIENTS_MEDICAL_VIEW,
+                PermissionCatalog::DENTAL_CHART_VIEW,
             ],
             // Secretary: intentionally excludes patients.medical.* — the front-desk role
             // never sees clinical tabs (master prompt / legacy business rule §1.8).

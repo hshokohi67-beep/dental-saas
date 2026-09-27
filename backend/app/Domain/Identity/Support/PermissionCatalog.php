@@ -28,6 +28,12 @@ class PermissionCatalog
 
     public const PATIENTS_MEDICAL_MANAGE = 'patients.medical.manage';
 
+    public const DENTAL_CHART_VIEW = 'dental.chart.view';
+
+    public const DENTAL_CHART_MANAGE = 'dental.chart.manage';
+
+    public const DENTAL_CHART_ASSIGN_DOCTOR = 'dental.chart.assign_doctor';
+
     /**
      * @return list<string>
      */
@@ -44,6 +50,9 @@ class PermissionCatalog
             self::PATIENTS_MERGE,
             self::PATIENTS_MEDICAL_VIEW,
             self::PATIENTS_MEDICAL_MANAGE,
+            self::DENTAL_CHART_VIEW,
+            self::DENTAL_CHART_MANAGE,
+            self::DENTAL_CHART_ASSIGN_DOCTOR,
         ];
     }
 }

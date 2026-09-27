@@ -25,6 +25,8 @@ class PatientResource extends JsonResource
             'date_of_birth' => $this->date_of_birth?->toDateString(),
             'branch_id' => $this->branch_id,
             'status' => $this->status,
+            'chart_mode' => $this->chart_mode,
+            'primary_doctor_staff_id' => $this->primary_doctor_staff_id,
             'created_at' => $this->created_at?->toIso8601String(),
         ];
     }

@@ -2,6 +2,8 @@
 
 namespace App\Domain\Patients\Models;
 
+use App\Domain\Dental\Models\PatientToothCondition;
+use App\Domain\Identity\Models\Staff;
 use App\Domain\Tenancy\Models\Branch;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Models\User;
@@ -14,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * @property-read Tenant $tenant
  * @property-read Branch|null $branch
+ * @property-read Staff|null $primaryDoctor
  */
 class Patient extends Model
 {
@@ -23,7 +26,7 @@ class Patient extends Model
     protected $fillable = [
         'tenant_id', 'branch_id', 'first_name', 'last_name', 'mobile',
         'national_id', 'gender', 'date_of_birth', 'notes', 'status',
-        'merged_into_id', 'created_by',
+        'merged_into_id', 'created_by', 'chart_mode', 'primary_doctor_staff_id',
     ];
 
     protected function casts(): array
@@ -76,6 +79,16 @@ class Patient extends Model
     public function timelineEvents(): HasMany
     {
         return $this->hasMany(PatientTimelineEvent::class)->latest('occurred_at');
+    }
+
+    public function primaryDoctor(): BelongsTo
+    {
+        return $this->belongsTo(Staff::class, 'primary_doctor_staff_id');
+    }
+
+    public function toothConditions(): HasMany
+    {
+        return $this->hasMany(PatientToothCondition::class);
     }
 
     public function fullName(): string

@@ -16,6 +16,10 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class PatientController extends Controller
 {
+    private const DETAIL_RELATIONS = [
+        'branch', 'medicalConditions.condition', 'allergies', 'medications', 'timelineEvents', 'primaryDoctor.user',
+    ];
+
     public function index(Request $request): AnonymousResourceCollection
     {
         $this->authorize(PermissionCatalog::PATIENTS_VIEW);
@@ -57,20 +61,20 @@ class PatientController extends Controller
     {
         $patient = $createPatient->execute($request->validated());
 
-        return new PatientDetailResource($patient->load(['branch', 'medicalConditions.condition', 'allergies', 'medications', 'timelineEvents']));
+        return new PatientDetailResource($patient->load(self::DETAIL_RELATIONS));
     }
 
     public function show(Patient $patient): PatientDetailResource
     {
         $this->authorize(PermissionCatalog::PATIENTS_VIEW);
 
-        return new PatientDetailResource($patient->load(['branch', 'medicalConditions.condition', 'allergies', 'medications', 'timelineEvents']));
+        return new PatientDetailResource($patient->load(self::DETAIL_RELATIONS));
     }
 
     public function update(UpdatePatientRequest $request, Patient $patient, UpdatePatient $updatePatient): PatientDetailResource
     {
         $patient = $updatePatient->execute($patient, $request->validated());
 
-        return new PatientDetailResource($patient->load(['branch', 'medicalConditions.condition', 'allergies', 'medications', 'timelineEvents']));
+        return new PatientDetailResource($patient->load(self::DETAIL_RELATIONS));
     }
 }

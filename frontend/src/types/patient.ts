@@ -2,6 +2,8 @@ export type Gender = "male" | "female" | "other";
 
 export type AllergySeverity = "mild" | "moderate" | "severe";
 
+export type ChartMode = "adult" | "peds";
+
 export interface Patient {
   id: string;
   first_name: string;
@@ -13,6 +15,8 @@ export interface Patient {
   date_of_birth: string | null;
   branch_id: string | null;
   status: "active" | "archived" | "merged";
+  chart_mode: ChartMode;
+  primary_doctor_staff_id: string | null;
   created_at: string;
 }
 
@@ -77,6 +81,7 @@ export interface PatientMedical {
 export interface PatientDetail extends Patient {
   notes: string | null;
   branch_name: string | null;
+  primary_doctor_name: string | null;
   merged_from_count: number;
   medical: PatientMedical | null;
   recent_timeline: PatientTimelineEvent[];

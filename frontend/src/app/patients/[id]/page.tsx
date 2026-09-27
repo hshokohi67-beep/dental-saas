@@ -3,9 +3,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/Button";
+import { DentalChartTab } from "@/features/dental/DentalChartTab";
 import { ClinicalAlerts } from "@/features/patients/ClinicalAlerts";
 import { MergePatientDialog } from "@/features/patients/MergePatientDialog";
 import { ApiError } from "@/lib/api";
+import { assignPrimaryDoctor } from "@/services/dental";
 import {
   addAllergy,
   addMedicalCondition,
@@ -17,9 +19,11 @@ import {
   removeMedicalCondition,
   updatePatient,
 } from "@/services/patients";
+import { listStaff } from "@/services/staff";
 import type { MedicalCondition, PatientDetail, PatientTimelineEvent } from "@/types/patient";
+import type { Staff } from "@/types/staff";
 
-type Tab = "info" | "medical" | "timeline";
+type Tab = "info" | "medical" | "dental" | "timeline";
 
 const genderLabels: Record<string, string> = { male: "مرد", female: "زن", other: "سایر" };
 
@@ -67,6 +71,7 @@ export default function PatientDetailPage() {
           [
             ["info", "اطلاعات"],
             ["medical", "پرونده‌ی پزشکی"],
+            ["dental", "چارت دندانی"],
             ["timeline", "تایم‌لاین"],
           ] as [Tab, string][]
         ).map(([key, label]) => (
@@ -91,6 +96,8 @@ export default function PatientDetailPage() {
       )}
 
       {tab === "medical" && <MedicalTab patient={patient} onChanged={reload} />}
+
+      {tab === "dental" && <DentalChartTab patientId={patient.id} />}
 
       {tab === "timeline" && <TimelineTab patientId={patient.id} />}
 
@@ -122,6 +129,13 @@ function InfoTab({
   onMergeRequested: () => void;
 }) {
   const [isSaving, setIsSaving] = useState(false);
+  const [doctors, setDoctors] = useState<Staff[]>([]);
+  const [selectedDoctorId, setSelectedDoctorId] = useState(patient.primary_doctor_staff_id ?? "");
+  const [isSavingDoctor, setIsSavingDoctor] = useState(false);
+
+  useEffect(() => {
+    listStaff().then((response) => setDoctors(response.data.filter((staff) => staff.user.roles.includes("Doctor"))));
+  }, []);
 
   async function saveNotes() {
     setIsSaving(true);
@@ -130,6 +144,16 @@ function InfoTab({
       onSaved();
     } finally {
       setIsSaving(false);
+    }
+  }
+
+  async function saveDoctor() {
+    setIsSavingDoctor(true);
+    try {
+      await assignPrimaryDoctor(patient.id, selectedDoctorId || null);
+      onSaved();
+    } finally {
+      setIsSavingDoctor(false);
     }
   }
 
@@ -145,6 +169,30 @@ function InfoTab({
           <Field label="پرونده‌های ادغام‌شده" value={String(patient.merged_from_count)} />
         )}
       </dl>
+
+      <div className="space-y-1">
+        <label className="text-sm text-muted" htmlFor="primary-doctor">
+          پزشک مسئول (برای ویرایش چارت دندانی)
+        </label>
+        <div className="flex gap-2">
+          <select
+            id="primary-doctor"
+            value={selectedDoctorId}
+            onChange={(event) => setSelectedDoctorId(event.target.value)}
+            className="w-full rounded-lg border border-border px-3 py-2 text-sm"
+          >
+            <option value="">بدون پزشک مسئول</option>
+            {doctors.map((doctor) => (
+              <option key={doctor.id} value={doctor.id}>
+                {doctor.user.name}
+              </option>
+            ))}
+          </select>
+          <Button type="button" onClick={saveDoctor} disabled={isSavingDoctor}>
+            ذخیره
+          </Button>
+        </div>
+      </div>
 
       <div className="space-y-1">
         <label className="text-sm text-muted" htmlFor="notes">

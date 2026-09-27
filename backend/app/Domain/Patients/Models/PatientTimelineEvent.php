@@ -33,6 +33,14 @@ class PatientTimelineEvent extends Model
 
     public const TYPE_MERGED_INTO = 'merged_into';
 
+    public const TYPE_TOOTH_CONDITION_RECORDED = 'tooth_condition_recorded';
+
+    public const TYPE_TOOTH_CONDITION_VOIDED = 'tooth_condition_voided';
+
+    public const TYPE_CHART_MODE_CHANGED = 'chart_mode_changed';
+
+    public const TYPE_PRIMARY_DOCTOR_ASSIGNED = 'primary_doctor_assigned';
+
     protected $fillable = ['tenant_id', 'patient_id', 'type', 'description', 'metadata', 'recorded_by', 'occurred_at'];
 
     protected function casts(): array

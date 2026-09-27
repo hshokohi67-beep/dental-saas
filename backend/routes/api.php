@@ -2,13 +2,18 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BranchController;
+use App\Http\Controllers\DentalConditionCatalogController;
 use App\Http\Controllers\MedicalConditionController;
+use App\Http\Controllers\OdontogramController;
 use App\Http\Controllers\PatientAllergyController;
+use App\Http\Controllers\PatientChartModeController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PatientMedicalConditionController;
 use App\Http\Controllers\PatientMedicationController;
 use App\Http\Controllers\PatientMergeController;
+use App\Http\Controllers\PatientPrimaryDoctorController;
 use App\Http\Controllers\PatientTimelineController;
+use App\Http\Controllers\PatientToothConditionController;
 use App\Http\Controllers\Platform\PlanController;
 use App\Http\Controllers\Platform\TenantController;
 use App\Http\Controllers\RoleController;
@@ -61,5 +66,14 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::post('/patients/{patient}/medications', [PatientMedicationController::class, 'store']);
         Route::patch('/patients/{patient}/medications/{medication}', [PatientMedicationController::class, 'update']);
+
+        Route::get('/dental-conditions', [DentalConditionCatalogController::class, 'index']);
+
+        Route::get('/patients/{patient}/odontogram', [OdontogramController::class, 'show']);
+        Route::patch('/patients/{patient}/chart-mode', [PatientChartModeController::class, 'update']);
+        Route::patch('/patients/{patient}/primary-doctor', [PatientPrimaryDoctorController::class, 'update']);
+
+        Route::post('/patients/{patient}/tooth-conditions', [PatientToothConditionController::class, 'store']);
+        Route::delete('/patients/{patient}/tooth-conditions/{toothCondition}', [PatientToothConditionController::class, 'destroy']);
     });
 });

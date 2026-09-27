@@ -37,6 +37,9 @@ class PatientDetailResource extends JsonResource
             'status' => $this->status,
             'branch_id' => $this->branch_id,
             'branch_name' => $this->branch?->name,
+            'chart_mode' => $this->chart_mode,
+            'primary_doctor_staff_id' => $this->primary_doctor_staff_id,
+            'primary_doctor_name' => $this->primaryDoctor?->user?->name,
             'created_at' => $this->created_at?->toIso8601String(),
             'merged_from_count' => $this->mergedFrom()->count(),
             'medical' => $canViewMedical ? [

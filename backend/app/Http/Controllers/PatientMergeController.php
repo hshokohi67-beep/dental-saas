@@ -16,6 +16,8 @@ class PatientMergeController extends Controller
 
         $merged = $mergePatients->execute($survivor, $duplicate);
 
-        return new PatientDetailResource($merged->load(['branch', 'medicalConditions.condition', 'allergies', 'medications', 'timelineEvents']));
+        return new PatientDetailResource($merged->load([
+            'branch', 'medicalConditions.condition', 'allergies', 'medications', 'timelineEvents', 'primaryDoctor.user',
+        ]));
     }
 }

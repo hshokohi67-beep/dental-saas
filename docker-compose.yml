@@ -1,0 +1,59 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ../infrastructure/docker/backend.Dockerfile
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+    command: >
+      sh -c "composer install --no-interaction &&
+             php artisan migrate --force &&
+             php artisan serve --host=0.0.0.0 --port=8100"
+    ports:
+      - "8100:8100"
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - postgres
+      - redis
+
+  web:
+    build:
+      context: ./frontend
+      dockerfile: ../infrastructure/docker/frontend.Dockerfile
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: sh -c "npm install && npm run dev"
+    ports:
+      - "3100:3100"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8100
+    depends_on:
+      - backend
+
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: dental_saas
+      POSTGRES_USER: dental_saas
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5442:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6389:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:

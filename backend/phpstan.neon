@@ -1,0 +1,17 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    paths:
+        - app
+
+    level: 5
+
+    tmpDir: storage/framework/phpstan
+
+    # Larastan infers model properties from the DB schema (NOT NULL columns become
+    # non-nullable types). That's wrong for a model's in-memory state *before* it's
+    # saved — e.g. an auto-fill-on-creating hook that checks a required column for
+    # null before setting it (see App\Shared\Concerns\BelongsToTenant). Without this,
+    # every tenant-owned model would need per-file suppression for that same pattern.
+    treatPhpDocTypesAsCertain: false

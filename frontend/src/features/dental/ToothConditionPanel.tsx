@@ -15,14 +15,6 @@ interface ToothConditionPanelProps {
   onClose: () => void;
 }
 
-const surfaceLabels: Record<SurfaceRegion, string> = {
-  mesial: "مزیال (طرف میانی)",
-  distal: "دیستال (طرف انتهایی)",
-  occlusal: "جونده/برشی",
-  buccal: "باکال/لبی",
-  lingual: "لینگوال/کامی",
-};
-
 export function ToothConditionPanel({ patientId, tooth, onChanged, onClose }: ToothConditionPanelProps) {
   const [conditions, setConditions] = useState<DentalCondition[]>([]);
   const [selectedConditionId, setSelectedConditionId] = useState("");
@@ -105,53 +97,42 @@ export function ToothConditionPanel({ patientId, tooth, onChanged, onClose }: To
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
-      <div className="flex items-start gap-4">
+      <div className="flex items-center gap-3">
         <ToothShape
           arch={tooth.arch}
           screenSide={tooth.screen_side}
           size={110}
           label={tooth.display_label}
           isPrimary={tooth.dentition === "primary"}
+          isAnterior={tooth.is_anterior}
           surfaceStatuses={tooth.surface_statuses}
           pendingSurfaces={pendingSurfaces}
           onToggleSurface={toggleSurface}
         />
-        <div className="space-y-1 text-xs text-muted">
-          <p>سطوحی که خدمت روی آن‌ها ثبت می‌شود را روی تصویر دندان انتخاب کنید (اختیاری؛ بدون انتخاب = کل دندان).</p>
-          <ul className="space-y-0.5">
-            {(Object.keys(surfaceLabels) as SurfaceRegion[]).map((surface) => {
-              const isSelected = pendingSurfaces.has(surface);
-              return (
-                <li
-                  key={surface}
-                  onClick={() => toggleSurface(surface)}
-                  className={`cursor-pointer ${isSelected ? "font-medium text-foreground" : ""}`}
-                >
-                  {isSelected ? "✓" : "○"} {surfaceLabels[surface]}
-                </li>
-              );
-            })}
-          </ul>
-        </div>
+        <p className="text-xs text-muted">
+          روی تصویر کلیک کنید تا سطح موردنظر انتخاب شود (اختیاری؛ بدون انتخاب = کل دندان). موس را روی هر ناحیه نگه
+          دارید تا حرف اختصاری‌اش (M/D/O/B/L) نشان داده شود.
+        </p>
       </div>
 
-      <div className="flex flex-col gap-2 sm:flex-row">
+      <div className="space-y-2">
         <ConditionPicker
           conditions={conditions}
           value={selectedConditionId}
           onChange={setSelectedConditionId}
-          placeholder="جست‌وجوی خدمت/وضعیت..."
-          className="w-full"
+          placeholder="جست‌وجو (اختیاری)..."
         />
-        <input
-          value={notes}
-          onChange={(event) => setNotes(event.target.value)}
-          placeholder="یادداشت (اختیاری)"
-          className="w-full rounded-lg border border-border px-3 py-2 text-sm"
-        />
-        <Button type="button" disabled={!selectedConditionId || isSubmitting} onClick={handleAdd}>
-          افزودن
-        </Button>
+        <div className="flex gap-2">
+          <input
+            value={notes}
+            onChange={(event) => setNotes(event.target.value)}
+            placeholder="یادداشت (اختیاری)"
+            className="w-full rounded-lg border border-border px-3 py-2 text-sm"
+          />
+          <Button type="button" disabled={!selectedConditionId || isSubmitting} onClick={handleAdd}>
+            افزودن
+          </Button>
+        </div>
       </div>
     </div>
   );

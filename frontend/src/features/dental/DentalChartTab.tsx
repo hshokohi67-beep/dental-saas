@@ -8,7 +8,6 @@ import type { ChartMode } from "@/types/patient";
 import type { Odontogram as OdontogramData, OdontogramTooth } from "@/types/dental";
 import { ArchFindings, WholeMouthFindings } from "./NonToothFindings";
 import { Odontogram } from "./Odontogram";
-import { SurfaceLegend } from "./SurfaceLegend";
 import { ToothConditionPanel } from "./ToothConditionPanel";
 
 export function DentalChartTab({ patientId }: { patientId: string }) {
@@ -75,8 +74,6 @@ export function DentalChartTab({ patientId }: { patientId: string }) {
       </div>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
-
-      <SurfaceLegend />
 
       <Odontogram
         patientId={patientId}

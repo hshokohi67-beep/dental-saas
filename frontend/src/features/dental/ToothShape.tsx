@@ -7,6 +7,20 @@ type SurfaceStatusMap = Record<SurfaceRegion, ToothStatus>;
 
 const HEALTHY: ToothStatus = { code: "healthy", label: "سالم", color: "#FFFFFF", border: "#C8D4DC", is_dashed: false };
 
+const SURFACE_TITLE: Record<SurfaceRegion, string> = {
+  mesial: "M — مزیال",
+  distal: "D — دیستال",
+  occlusal: "O — اکلوزال",
+  buccal: "B — باکال/لبی",
+  lingual: "L — لینگوال/کامی",
+};
+
+/** Hover tooltip text for a region — occlusal becomes incisal wording on front teeth. */
+function surfaceTitle(surface: SurfaceRegion, isAnterior: boolean): string {
+  if (surface === "occlusal" && isAnterior) return "I — اینسایزال";
+  return SURFACE_TITLE[surface];
+}
+
 /**
  * Maps the tooth icon's four geometric regions (top/bottom/left/right
  * around the center) to the real dental surface they represent, given the
@@ -27,6 +41,7 @@ interface ToothShapeProps {
   size: number;
   label: string;
   isPrimary?: boolean;
+  isAnterior?: boolean;
   isSelected?: boolean;
   onClick?: () => void;
   surfaceStatuses: SurfaceStatusMap;
@@ -52,6 +67,7 @@ export function ToothShape({
   size,
   label,
   isPrimary = false,
+  isAnterior = false,
   isSelected = false,
   onClick,
   surfaceStatuses,
@@ -105,7 +121,9 @@ export function ToothShape({
                       }
                     : undefined
                 }
-              />
+              >
+                <title>{surfaceTitle(surface, isAnterior)}</title>
+              </polygon>
             );
           })}
         </g>

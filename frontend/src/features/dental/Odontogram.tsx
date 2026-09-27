@@ -59,6 +59,7 @@ function ToothRow({
           size={toothSize(tooth)}
           label={tooth.display_label}
           isPrimary={tooth.dentition === "primary"}
+          isAnterior={tooth.is_anterior}
           isSelected={selectedFdi === tooth.fdi}
           surfaceStatuses={tooth.surface_statuses}
           onClick={() => onSelectTooth(tooth)}

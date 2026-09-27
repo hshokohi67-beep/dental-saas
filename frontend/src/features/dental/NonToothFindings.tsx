@@ -75,19 +75,21 @@ export function ArchFindings({ patientId, onChanged, findings }: BaseProps & { f
           دارد.
         </p>
       ) : (
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <select
-            value={arch}
-            onChange={(event) => setArch(event.target.value as "upper" | "lower")}
-            className="rounded-lg border border-border px-3 py-2 text-sm"
-          >
-            <option value="upper">فک بالا</option>
-            <option value="lower">فک پایین</option>
-          </select>
-          <ConditionPicker conditions={conditions} value={conditionId} onChange={setConditionId} className="w-full" />
-          <Button type="button" disabled={!conditionId} onClick={handleAdd}>
-            افزودن
-          </Button>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <select
+              value={arch}
+              onChange={(event) => setArch(event.target.value as "upper" | "lower")}
+              className="rounded-lg border border-border px-3 py-2 text-sm"
+            >
+              <option value="upper">فک بالا</option>
+              <option value="lower">فک پایین</option>
+            </select>
+            <Button type="button" disabled={!conditionId} onClick={handleAdd}>
+              افزودن
+            </Button>
+          </div>
+          <ConditionPicker conditions={conditions} value={conditionId} onChange={setConditionId} />
         </div>
       )}
     </div>
@@ -148,9 +150,9 @@ export function WholeMouthFindings({
 
       {error && <p className="mb-2 text-sm text-red-600">{error}</p>}
 
-      <div className="flex gap-2">
-        <ConditionPicker conditions={conditions} value={conditionId} onChange={setConditionId} className="w-full" />
-        <Button type="button" disabled={!conditionId} onClick={handleAdd}>
+      <div className="space-y-2">
+        <ConditionPicker conditions={conditions} value={conditionId} onChange={setConditionId} />
+        <Button type="button" disabled={!conditionId} onClick={handleAdd} className="w-full">
           افزودن
         </Button>
       </div>

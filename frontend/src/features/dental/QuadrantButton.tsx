@@ -69,7 +69,7 @@ export function QuadrantButton({ patientId, quadrant, label, findings, onChanged
       </button>
 
       {isOpen && (
-        <div className="absolute z-10 mt-1 w-56 space-y-2 rounded-lg border border-border bg-white p-3 shadow-md">
+        <div className="absolute z-10 mt-1 w-72 space-y-2 rounded-lg border border-border bg-white p-3 shadow-md">
           <ul className="space-y-1 text-xs">
             {findings.map((finding) => (
               <li key={finding.id} className="flex items-center justify-between">

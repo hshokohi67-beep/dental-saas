@@ -76,15 +76,20 @@ class DentalConditionCatalogSeeder extends Seeder
             ['key' => 'flap_surgery', 'label' => 'فلاپ جراحی', 'category' => 'treatment', 'scope' => 'half_arch', 'dentitions' => $permanentOnly, 'status_priority' => null, 'status_color' => null, 'status_border' => null, 'booking_eligible' => true, 'duration_minutes' => 60, 'buffer_minutes' => 15],
             ['key' => 'consult_perio_h', 'label' => 'مشاوره پریو (نیم‌فک)', 'category' => 'consultation', 'scope' => 'half_arch', 'dentitions' => $permanentOnly, 'status_priority' => null, 'status_color' => null, 'status_border' => null, 'booking_eligible' => true, 'duration_minutes' => 20, 'buffer_minutes' => 0],
 
-            // Whole-mouth codes
-            ['key' => 'panoramic', 'label' => 'پانورامیک', 'category' => 'radiograph', 'scope' => 'whole_mouth', 'dentitions' => $both, 'status_priority' => null, 'status_color' => null, 'status_border' => null, 'booking_eligible' => true, 'duration_minutes' => 15, 'buffer_minutes' => 0],
-            ['key' => 'scaling_full', 'label' => 'جرم‌گیری کل دهان', 'category' => 'treatment', 'scope' => 'whole_mouth', 'dentitions' => $both, 'status_priority' => null, 'status_color' => null, 'status_border' => null, 'booking_eligible' => true, 'duration_minutes' => 45, 'buffer_minutes' => 5],
-            ['key' => 'brushing', 'label' => 'بروساژ', 'category' => 'treatment', 'scope' => 'whole_mouth', 'dentitions' => $both, 'status_priority' => null, 'status_color' => null, 'status_border' => null, 'booking_eligible' => true, 'duration_minutes' => 15, 'buffer_minutes' => 0],
+            // Arch-scoped codes — one full jaw at a time (recorded once per
+            // arch via the arch button, e.g. "جرم‌گیری" applied to upper then
+            // lower separately), not a single whole-mouth action.
+            ['key' => 'panoramic', 'label' => 'پانورامیک', 'category' => 'radiograph', 'scope' => 'arch', 'dentitions' => $both, 'status_priority' => null, 'status_color' => null, 'status_border' => null, 'booking_eligible' => true, 'duration_minutes' => 15, 'buffer_minutes' => 0],
+            ['key' => 'scaling_full', 'label' => 'جرم‌گیری', 'category' => 'treatment', 'scope' => 'arch', 'dentitions' => $both, 'status_priority' => null, 'status_color' => null, 'status_border' => null, 'booking_eligible' => true, 'duration_minutes' => 45, 'buffer_minutes' => 5],
+            ['key' => 'brushing', 'label' => 'بروساژ', 'category' => 'treatment', 'scope' => 'arch', 'dentitions' => $both, 'status_priority' => null, 'status_color' => null, 'status_border' => null, 'booking_eligible' => true, 'duration_minutes' => 15, 'buffer_minutes' => 0],
+            ['key' => 'fluoride', 'label' => 'فلوراید تراپی', 'category' => 'treatment', 'scope' => 'arch', 'dentitions' => $both, 'status_priority' => null, 'status_color' => null, 'status_border' => null, 'booking_eligible' => true, 'duration_minutes' => 15, 'buffer_minutes' => 0],
+            ['key' => 'bleaching', 'label' => 'بلیچینگ', 'category' => 'treatment', 'scope' => 'arch', 'dentitions' => $permanentOnly, 'status_priority' => null, 'status_color' => null, 'status_border' => null, 'booking_eligible' => true, 'duration_minutes' => 45, 'buffer_minutes' => 10],
+            ['key' => 'ortho', 'label' => 'ارتودنسی', 'category' => 'treatment', 'scope' => 'arch', 'dentitions' => $both, 'status_priority' => null, 'status_color' => null, 'status_border' => null, 'booking_eligible' => true, 'duration_minutes' => 30, 'buffer_minutes' => 5],
+            ['key' => 'consult_ortho', 'label' => 'مشاوره ارتودنسی', 'category' => 'consultation', 'scope' => 'arch', 'dentitions' => $both, 'status_priority' => null, 'status_color' => null, 'status_border' => null, 'booking_eligible' => true, 'duration_minutes' => 20, 'buffer_minutes' => 0],
+
+            // Whole-mouth codes — genuinely a single atomic action across the
+            // entire mouth, not repeated per arch.
             ['key' => 'fissure_seal', 'label' => 'فیشورسیلانت', 'category' => 'treatment', 'scope' => 'whole_mouth', 'dentitions' => $both, 'status_priority' => null, 'status_color' => null, 'status_border' => null, 'booking_eligible' => true, 'duration_minutes' => 30, 'buffer_minutes' => 5],
-            ['key' => 'fluoride', 'label' => 'فلوراید تراپی', 'category' => 'treatment', 'scope' => 'whole_mouth', 'dentitions' => $both, 'status_priority' => null, 'status_color' => null, 'status_border' => null, 'booking_eligible' => true, 'duration_minutes' => 15, 'buffer_minutes' => 0],
-            ['key' => 'bleaching', 'label' => 'بلیچینگ', 'category' => 'treatment', 'scope' => 'whole_mouth', 'dentitions' => $permanentOnly, 'status_priority' => null, 'status_color' => null, 'status_border' => null, 'booking_eligible' => true, 'duration_minutes' => 45, 'buffer_minutes' => 10],
-            ['key' => 'ortho', 'label' => 'ارتودنسی', 'category' => 'treatment', 'scope' => 'whole_mouth', 'dentitions' => $both, 'status_priority' => null, 'status_color' => null, 'status_border' => null, 'booking_eligible' => true, 'duration_minutes' => 30, 'buffer_minutes' => 5],
-            ['key' => 'consult_ortho', 'label' => 'مشاوره ارتودنسی', 'category' => 'consultation', 'scope' => 'whole_mouth', 'dentitions' => $both, 'status_priority' => null, 'status_color' => null, 'status_border' => null, 'booking_eligible' => true, 'duration_minutes' => 20, 'buffer_minutes' => 0],
             ['key' => 'study_model', 'label' => 'مدل مطالعه', 'category' => 'other', 'scope' => 'whole_mouth', 'dentitions' => $both, 'status_priority' => null, 'status_color' => null, 'status_border' => null, 'booking_eligible' => true, 'duration_minutes' => 20, 'buffer_minutes' => 0],
         ];
 

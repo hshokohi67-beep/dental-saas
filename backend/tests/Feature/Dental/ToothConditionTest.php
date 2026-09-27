@@ -215,7 +215,7 @@ class ToothConditionTest extends TestCase
     public function test_a_whole_mouth_finding_needs_neither_tooth_nor_quadrant(): void
     {
         $response = $this->actingAs($this->manager)->postJson("/api/patients/{$this->patientId}/tooth-conditions", [
-            'dental_condition_catalog_id' => $this->conditionId('panoramic'),
+            'dental_condition_catalog_id' => $this->conditionId('study_model'),
             'scope_type' => 'whole_mouth',
         ]);
 
@@ -228,11 +228,63 @@ class ToothConditionTest extends TestCase
     public function test_a_whole_mouth_only_code_cannot_be_recorded_against_a_single_tooth(): void
     {
         $response = $this->actingAs($this->manager)->postJson("/api/patients/{$this->patientId}/tooth-conditions", [
-            'dental_condition_catalog_id' => $this->conditionId('panoramic'),
+            'dental_condition_catalog_id' => $this->conditionId('study_model'),
             'scope_type' => 'tooth',
             'tooth_number' => 11,
         ]);
 
         $response->assertUnprocessable();
+    }
+
+    public function test_the_timeline_message_uses_the_patient_perspective_label_not_the_raw_fdi_number(): void
+    {
+        $this->actingAs($this->manager)->postJson("/api/patients/{$this->patientId}/tooth-conditions", [
+            'dental_condition_catalog_id' => $this->conditionId('amalgam'),
+            'scope_type' => 'tooth',
+            'tooth_number' => 17,
+        ])->assertCreated();
+
+        $this->assertDatabaseHas('patient_timeline_events', [
+            'patient_id' => $this->patientId,
+            'type' => 'tooth_condition_recorded',
+            'description' => '«ترمیم آمالگام» روی دندان 7 بالا راست ثبت شد.',
+        ]);
+    }
+
+    public function test_the_timeline_message_names_the_recorded_surfaces(): void
+    {
+        $this->actingAs($this->manager)->postJson("/api/patients/{$this->patientId}/tooth-conditions", [
+            'dental_condition_catalog_id' => $this->conditionId('composite'),
+            'scope_type' => 'tooth',
+            'tooth_number' => 26,
+            'surfaces' => ['mesial', 'occlusal'],
+        ])->assertCreated();
+
+        $this->assertDatabaseHas('patient_timeline_events', [
+            'patient_id' => $this->patientId,
+            'type' => 'tooth_condition_recorded',
+            'description' => '«ترمیم کامپوزیت» روی دندان 6 بالا چپ (سطح مزیال، اکلوزال) ثبت شد.',
+        ]);
+    }
+
+    public function test_an_arch_finding_can_be_recorded_for_the_upper_or_lower_jaw(): void
+    {
+        $response = $this->actingAs($this->manager)->postJson("/api/patients/{$this->patientId}/tooth-conditions", [
+            'dental_condition_catalog_id' => $this->conditionId('scaling_full'),
+            'scope_type' => 'arch',
+            'arch' => 'upper',
+        ]);
+
+        $response->assertCreated();
+
+        $odontogram = $this->actingAs($this->manager)->getJson("/api/patients/{$this->patientId}/odontogram");
+        $this->assertCount(1, $odontogram->json('data.arch_findings'));
+        $this->assertSame('upper', $odontogram->json('data.arch_findings.0.arch'));
+
+        $this->assertDatabaseHas('patient_timeline_events', [
+            'patient_id' => $this->patientId,
+            'type' => 'tooth_condition_recorded',
+            'description' => '«جرم‌گیری» روی فک بالا ثبت شد.',
+        ]);
     }
 }

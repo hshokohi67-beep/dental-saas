@@ -1,6 +1,16 @@
 import { describe, expect, it } from "vitest";
 import { sortForDisplay } from "./Odontogram";
-import type { OdontogramTooth } from "@/types/dental";
+import type { OdontogramTooth, SurfaceRegion, ToothStatus } from "@/types/dental";
+
+const HEALTHY: ToothStatus = { code: "healthy", label: "سالم", color: "#FFFFFF", border: "#C8D4DC", is_dashed: false };
+
+const SURFACE_STATUSES: Record<SurfaceRegion, ToothStatus> = {
+  mesial: HEALTHY,
+  distal: HEALTHY,
+  occlusal: HEALTHY,
+  buccal: HEALTHY,
+  lingual: HEALTHY,
+};
 
 function tooth(position: number): OdontogramTooth {
   return {
@@ -12,7 +22,9 @@ function tooth(position: number): OdontogramTooth {
     patient_side: "right",
     screen_side: "left",
     display_label: String(position),
-    status: { code: "healthy", label: "سالم", color: "#FFFFFF", border: "#C8D4DC", is_dashed: false },
+    is_anterior: position <= 3,
+    status: HEALTHY,
+    surface_statuses: SURFACE_STATUSES,
     conditions: [],
   };
 }

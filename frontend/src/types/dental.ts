@@ -29,6 +29,8 @@ export interface ToothStatus {
   is_dashed: boolean;
 }
 
+export type SurfaceRegion = "mesial" | "distal" | "occlusal" | "buccal" | "lingual";
+
 export interface OdontogramTooth {
   fdi: number;
   quadrant: number;
@@ -38,7 +40,9 @@ export interface OdontogramTooth {
   patient_side: "left" | "right";
   screen_side: "left" | "right";
   display_label: string;
+  is_anterior: boolean;
   status: ToothStatus;
+  surface_statuses: Record<SurfaceRegion, ToothStatus>;
   conditions: ToothConditionEntry[];
 }
 

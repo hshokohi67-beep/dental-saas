@@ -90,6 +90,16 @@ final class ToothNumber
     }
 
     /**
+     * Incisors and canines (position 1-3) have an incisal edge instead of an
+     * occlusal surface — the catalog's own "anterior" tooth_filter uses the
+     * same 1-3 cutoff (business rules §6.2).
+     */
+    public function isAnterior(): bool
+    {
+        return $this->position <= 3;
+    }
+
+    /**
      * The patient's own anatomical side — not the rendering side.
      */
     public function patientSide(): string

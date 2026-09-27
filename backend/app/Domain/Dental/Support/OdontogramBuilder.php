@@ -57,7 +57,9 @@ class OdontogramBuilder
             'patient_side' => $tooth->patientSide(),
             'screen_side' => $tooth->screenSide(),
             'display_label' => $tooth->displayLabel(),
+            'is_anterior' => $tooth->isAnterior(),
             'status' => ToothStatusResolver::resolve($conditionsForTooth),
+            'surface_statuses' => ToothStatusResolver::resolveSurfaces($conditionsForTooth),
             'conditions' => $conditionsForTooth->map(fn (PatientToothCondition $link) => self::conditionPayload($link))->values()->all(),
         ];
     }

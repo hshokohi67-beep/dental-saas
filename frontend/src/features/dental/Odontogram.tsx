@@ -1,19 +1,12 @@
 "use client";
 
 import type { OdontogramTooth } from "@/types/dental";
+import { ToothShape } from "./ToothShape";
 
 interface OdontogramProps {
   teeth: OdontogramTooth[];
   selectedFdi: number | null;
   onSelectTooth: (tooth: OdontogramTooth) => void;
-}
-
-type CellKey = "ul" | "ur" | "ll" | "lr";
-
-function cellKeyFor(tooth: OdontogramTooth): CellKey {
-  const vertical = tooth.arch === "upper" ? "u" : "l";
-  const horizontal = tooth.screen_side === "left" ? "l" : "r";
-  return `${vertical}${horizontal}` as CellKey;
 }
 
 export function sortForDisplay(teeth: OdontogramTooth[], screenSide: "left" | "right"): OdontogramTooth[] {
@@ -24,75 +17,65 @@ export function sortForDisplay(teeth: OdontogramTooth[], screenSide: "left" | "r
   return screenSide === "left" ? sorted.reverse() : sorted;
 }
 
-function ToothButton({
-  tooth,
-  isSelected,
-  onSelect,
-}: {
-  tooth: OdontogramTooth;
-  isSelected: boolean;
-  onSelect: () => void;
-}) {
-  const size = tooth.dentition === "primary" ? "h-8 w-8 text-xs" : "h-10 w-10 text-sm";
-
-  return (
-    <button
-      type="button"
-      onClick={onSelect}
-      title={tooth.status.label}
-      className={`flex ${size} items-center justify-center rounded-md border-2 font-medium transition ${
-        isSelected ? "ring-2 ring-primary ring-offset-1" : ""
-      } ${tooth.status.is_dashed ? "border-dashed" : "border-solid"}`}
-      style={{
-        backgroundColor: tooth.status.color ?? "#FFFFFF",
-        borderColor: tooth.status.border ?? "#C8D4DC",
-      }}
-    >
-      {tooth.display_label}
-    </button>
-  );
+function rowTeeth(teeth: OdontogramTooth[], arch: "upper" | "lower", dentition: "permanent" | "primary"): OdontogramTooth[] {
+  const matching = teeth.filter((tooth) => tooth.arch === arch && tooth.dentition === dentition);
+  const left = sortForDisplay(matching.filter((tooth) => tooth.screen_side === "left"), "left");
+  const right = sortForDisplay(matching.filter((tooth) => tooth.screen_side === "right"), "right");
+  return [...left, ...right];
 }
 
-function QuadrantCell({
+/**
+ * Positions a row of teeth along the natural dental arch curve (business
+ * rules didn't specify this — it's a readability upgrade): front teeth sit
+ * closest to the bite line (the gap between the two arches), and molars at
+ * either end curve away from it, like a real jaw viewed from the front.
+ */
+function ArchRow({
   teeth,
-  screenSide,
+  arch,
+  size,
+  amplitude,
+  awayFromGapIsUp,
   selectedFdi,
   onSelectTooth,
 }: {
   teeth: OdontogramTooth[];
-  screenSide: "left" | "right";
+  arch: "upper" | "lower";
+  size: number;
+  amplitude: number;
+  awayFromGapIsUp: boolean;
   selectedFdi: number | null;
   onSelectTooth: (tooth: OdontogramTooth) => void;
 }) {
-  const permanent = sortForDisplay(teeth.filter((tooth) => tooth.dentition === "permanent"), screenSide);
-  const primary = sortForDisplay(teeth.filter((tooth) => tooth.dentition === "primary"), screenSide);
+  const slot = size + 6;
+  const n = teeth.length;
+  if (n === 0) return null;
+
+  const width = n * slot;
 
   return (
-    <div className="flex flex-col gap-1">
-      {permanent.length > 0 && (
-        <div className="flex gap-1">
-          {permanent.map((tooth) => (
-            <ToothButton
-              key={tooth.fdi}
-              tooth={tooth}
+    <div className="relative" style={{ width, height: size + amplitude + 20 }}>
+      {teeth.map((tooth, index) => {
+        const t = n > 1 ? (index - (n - 1) / 2) / ((n - 1) / 2) : 0;
+        const x = index * slot;
+        const curve = amplitude * t * t;
+        const y = awayFromGapIsUp ? amplitude - curve : curve;
+
+        return (
+          <div key={tooth.fdi} className="absolute" style={{ left: x, top: y }}>
+            <ToothShape
+              arch={arch}
+              screenSide={tooth.screen_side}
+              size={size}
+              label={tooth.display_label}
+              isPrimary={tooth.dentition === "primary"}
               isSelected={selectedFdi === tooth.fdi}
-              onSelect={() => onSelectTooth(tooth)}
+              surfaceStatuses={tooth.surface_statuses}
+              onClick={() => onSelectTooth(tooth)}
             />
-          ))}
-        </div>
-      )}
-      {primary.length > 0 && (
-        <div className="flex gap-1">
-          {primary.map((tooth) => (
-            <ToothButton
-              key={tooth.fdi}
-              tooth={tooth}
-              isSelected={selectedFdi === tooth.fdi}
-              onSelect={() => onSelectTooth(tooth)}
-            />
-          ))}
-        </div>
-      )}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -104,21 +87,53 @@ function QuadrantCell({
  * left/right here means the physical screen side, not text direction.
  */
 export function Odontogram({ teeth, selectedFdi, onSelectTooth }: OdontogramProps) {
-  const cells: Record<CellKey, OdontogramTooth[]> = { ul: [], ur: [], ll: [], lr: [] };
-  for (const tooth of teeth) {
-    cells[cellKeyFor(tooth)].push(tooth);
-  }
+  const hasPrimary = teeth.some((tooth) => tooth.dentition === "primary");
 
   return (
-    <div dir="ltr" className="space-y-2 rounded-xl border border-border p-4">
-      <div className="flex justify-center gap-6 border-b border-dashed border-border pb-2">
-        <QuadrantCell teeth={cells.ul} screenSide="left" selectedFdi={selectedFdi} onSelectTooth={onSelectTooth} />
-        <QuadrantCell teeth={cells.ur} screenSide="right" selectedFdi={selectedFdi} onSelectTooth={onSelectTooth} />
-      </div>
-      <div className="flex justify-center gap-6 pt-2">
-        <QuadrantCell teeth={cells.ll} screenSide="left" selectedFdi={selectedFdi} onSelectTooth={onSelectTooth} />
-        <QuadrantCell teeth={cells.lr} screenSide="right" selectedFdi={selectedFdi} onSelectTooth={onSelectTooth} />
-      </div>
+    <div dir="ltr" className="flex flex-col items-center gap-3 rounded-xl border border-border bg-white p-6">
+      {hasPrimary && (
+        <ArchRow
+          teeth={rowTeeth(teeth, "upper", "primary")}
+          arch="upper"
+          size={30}
+          amplitude={16}
+          awayFromGapIsUp
+          selectedFdi={selectedFdi}
+          onSelectTooth={onSelectTooth}
+        />
+      )}
+      <ArchRow
+        teeth={rowTeeth(teeth, "upper", "permanent")}
+        arch="upper"
+        size={42}
+        amplitude={36}
+        awayFromGapIsUp
+        selectedFdi={selectedFdi}
+        onSelectTooth={onSelectTooth}
+      />
+
+      <div className="my-1 h-px w-2/3 border-t border-dashed border-border" />
+
+      <ArchRow
+        teeth={rowTeeth(teeth, "lower", "permanent")}
+        arch="lower"
+        size={42}
+        amplitude={36}
+        awayFromGapIsUp={false}
+        selectedFdi={selectedFdi}
+        onSelectTooth={onSelectTooth}
+      />
+      {hasPrimary && (
+        <ArchRow
+          teeth={rowTeeth(teeth, "lower", "primary")}
+          arch="lower"
+          size={30}
+          amplitude={16}
+          awayFromGapIsUp={false}
+          selectedFdi={selectedFdi}
+          onSelectTooth={onSelectTooth}
+        />
+      )}
     </div>
   );
 }

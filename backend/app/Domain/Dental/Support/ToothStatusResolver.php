@@ -13,6 +13,15 @@ use Illuminate\Support\Collection;
  */
 class ToothStatusResolver
 {
+    /**
+     * The five classic dental surfaces a professional chart colors
+     * independently. "occlusal" doubles as the anterior tooth's incisal
+     * edge — the same center region, just named differently clinically.
+     *
+     * @var list<string>
+     */
+    public const SURFACES = ['mesial', 'distal', 'occlusal', 'buccal', 'lingual'];
+
     private const HEALTHY = [
         'code' => 'healthy',
         'label' => 'سالم',
@@ -56,5 +65,41 @@ class ToothStatusResolver
             'border' => $winner->status_border,
             'is_dashed' => false,
         ];
+    }
+
+    /**
+     * Resolves a status per dental surface (business rules §1.4 asked for a
+     * real anatomical surface model, never implemented in legacy). A
+     * condition recorded with no surfaces at all (e.g. crown, implant,
+     * extraction) covers the whole tooth, so it counts toward every
+     * surface; a condition recorded with specific surfaces only colors
+     * those.
+     *
+     * @param  Collection<int, PatientToothCondition>  $activeConditions
+     * @return array<string, array{code: ?string, label: string, color: ?string, border: ?string, is_dashed: bool}>
+     */
+    public static function resolveSurfaces(Collection $activeConditions): array
+    {
+        $statuses = [];
+
+        foreach (self::SURFACES as $surface) {
+            $applicable = $activeConditions->filter(function (PatientToothCondition $link) use ($surface) {
+                $surfaces = $link->surfaces;
+
+                if (blank($surfaces)) {
+                    return true;
+                }
+
+                if ($surface === 'occlusal' && in_array('incisal', $surfaces, true)) {
+                    return true;
+                }
+
+                return in_array($surface, $surfaces, true);
+            });
+
+            $statuses[$surface] = self::resolve($applicable);
+        }
+
+        return $statuses;
     }
 }

@@ -134,6 +134,58 @@ class ToothConditionTest extends TestCase
         ]);
     }
 
+    public function test_surface_specific_conditions_only_color_their_own_surfaces(): void
+    {
+        $this->actingAs($this->manager)->postJson("/api/patients/{$this->patientId}/tooth-conditions", [
+            'dental_condition_catalog_id' => $this->conditionId('composite'),
+            'scope_type' => 'tooth',
+            'tooth_number' => 26,
+            'surfaces' => ['mesial', 'occlusal'],
+        ])->assertCreated();
+
+        $odontogram = $this->actingAs($this->manager)->getJson("/api/patients/{$this->patientId}/odontogram");
+        $surfaces = collect($odontogram->json('data.teeth'))->firstWhere('fdi', 26)['surface_statuses'];
+
+        $this->assertSame('composite', $surfaces['mesial']['code']);
+        $this->assertSame('composite', $surfaces['occlusal']['code']);
+        $this->assertSame('healthy', $surfaces['distal']['code']);
+        $this->assertSame('healthy', $surfaces['buccal']['code']);
+        $this->assertSame('healthy', $surfaces['lingual']['code']);
+    }
+
+    public function test_a_whole_tooth_condition_with_no_surfaces_colors_every_surface(): void
+    {
+        $this->actingAs($this->manager)->postJson("/api/patients/{$this->patientId}/tooth-conditions", [
+            'dental_condition_catalog_id' => $this->conditionId('crown'),
+            'scope_type' => 'tooth',
+            'tooth_number' => 27,
+        ])->assertCreated();
+
+        $odontogram = $this->actingAs($this->manager)->getJson("/api/patients/{$this->patientId}/odontogram");
+        $surfaces = collect($odontogram->json('data.teeth'))->firstWhere('fdi', 27)['surface_statuses'];
+
+        foreach (['mesial', 'distal', 'occlusal', 'buccal', 'lingual'] as $surface) {
+            $this->assertSame('crown', $surfaces[$surface]['code']);
+        }
+    }
+
+    public function test_an_incisal_surface_is_treated_as_the_occlusal_center_region(): void
+    {
+        $this->actingAs($this->manager)->postJson("/api/patients/{$this->patientId}/tooth-conditions", [
+            'dental_condition_catalog_id' => $this->conditionId('composite'),
+            'scope_type' => 'tooth',
+            'tooth_number' => 11,
+            'surfaces' => ['incisal'],
+        ])->assertCreated();
+
+        $odontogram = $this->actingAs($this->manager)->getJson("/api/patients/{$this->patientId}/odontogram");
+        $tooth = collect($odontogram->json('data.teeth'))->firstWhere('fdi', 11);
+
+        $this->assertTrue($tooth['is_anterior']);
+        $this->assertSame('composite', $tooth['surface_statuses']['occlusal']['code']);
+        $this->assertSame('healthy', $tooth['surface_statuses']['mesial']['code']);
+    }
+
     public function test_a_permanent_only_code_cannot_be_recorded_on_a_primary_tooth(): void
     {
         $response = $this->actingAs($this->manager)->postJson("/api/patients/{$this->patientId}/tooth-conditions", [

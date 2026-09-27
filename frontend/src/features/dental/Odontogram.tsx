@@ -1,12 +1,16 @@
 "use client";
 
-import type { OdontogramTooth } from "@/types/dental";
+import type { GroupedFinding, OdontogramTooth } from "@/types/dental";
+import { QuadrantButton } from "./QuadrantButton";
 import { ToothShape } from "./ToothShape";
 
 interface OdontogramProps {
+  patientId: string;
   teeth: OdontogramTooth[];
+  quadrantFindings: GroupedFinding[];
   selectedFdi: number | null;
   onSelectTooth: (tooth: OdontogramTooth) => void;
+  onChanged: () => void;
 }
 
 export function sortForDisplay(teeth: OdontogramTooth[], screenSide: "left" | "right"): OdontogramTooth[] {
@@ -24,58 +28,67 @@ function rowTeeth(teeth: OdontogramTooth[], arch: "upper" | "lower", dentition: 
   return [...left, ...right];
 }
 
-/**
- * Positions a row of teeth along the natural dental arch curve (business
- * rules didn't specify this — it's a readability upgrade): front teeth sit
- * closest to the bite line (the gap between the two arches), and molars at
- * either end curve away from it, like a real jaw viewed from the front.
- */
-function ArchRow({
+function findingsFor(quadrantFindings: GroupedFinding[], quadrant: number) {
+  return quadrantFindings.find((group) => group.quadrant === quadrant)?.conditions ?? [];
+}
+
+function ToothRow({
   teeth,
-  arch,
-  size,
-  amplitude,
-  awayFromGapIsUp,
   selectedFdi,
   onSelectTooth,
 }: {
   teeth: OdontogramTooth[];
-  arch: "upper" | "lower";
-  size: number;
-  amplitude: number;
-  awayFromGapIsUp: boolean;
   selectedFdi: number | null;
   onSelectTooth: (tooth: OdontogramTooth) => void;
 }) {
-  const slot = size + 6;
-  const n = teeth.length;
-  if (n === 0) return null;
-
-  const width = n * slot;
+  if (teeth.length === 0) return null;
 
   return (
-    <div className="relative" style={{ width, height: size + amplitude + 20 }}>
-      {teeth.map((tooth, index) => {
-        const t = n > 1 ? (index - (n - 1) / 2) / ((n - 1) / 2) : 0;
-        const x = index * slot;
-        const curve = amplitude * t * t;
-        const y = awayFromGapIsUp ? amplitude - curve : curve;
+    <div className="flex justify-center gap-1">
+      {teeth.map((tooth) => (
+        <ToothShape
+          key={tooth.fdi}
+          arch={tooth.arch}
+          screenSide={tooth.screen_side}
+          size={tooth.dentition === "primary" ? 30 : 42}
+          label={tooth.display_label}
+          isPrimary={tooth.dentition === "primary"}
+          isSelected={selectedFdi === tooth.fdi}
+          surfaceStatuses={tooth.surface_statuses}
+          onClick={() => onSelectTooth(tooth)}
+        />
+      ))}
+    </div>
+  );
+}
 
-        return (
-          <div key={tooth.fdi} className="absolute" style={{ left: x, top: y }}>
-            <ToothShape
-              arch={arch}
-              screenSide={tooth.screen_side}
-              size={size}
-              label={tooth.display_label}
-              isPrimary={tooth.dentition === "primary"}
-              isSelected={selectedFdi === tooth.fdi}
-              surfaceStatuses={tooth.surface_statuses}
-              onClick={() => onSelectTooth(tooth)}
-            />
-          </div>
-        );
-      })}
+const LEGEND: { label: string; color: string; border: string }[] = [
+  { label: "کشیده‌شده / ایمپلنت", color: "#F2F3F4", border: "#B0BEC5" },
+  { label: "ایمپلنت", color: "#E8F8F5", border: "#4DB6AC" },
+  { label: "عصب‌کشی", color: "#EDE7F6", border: "#9B7FD4" },
+  { label: "روکش", color: "#FEF9E7", border: "#F0C040" },
+  { label: "بریج", color: "#EBF5FB", border: "#78C0E0" },
+  { label: "لامینیت/ونیر", color: "#FEF0FB", border: "#D98FD6" },
+  { label: "ترمیم", color: "#E8F4FC", border: "#5DADE2" },
+  { label: "سالم", color: "#FFFFFF", border: "#C8D4DC" },
+];
+
+function ColorLegend() {
+  return (
+    <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 border-t border-border pt-3 text-xs text-muted">
+      {LEGEND.map((item) => (
+        <span key={item.label} className="flex items-center gap-1">
+          <span
+            className="inline-block h-3 w-3 rounded-sm border"
+            style={{ backgroundColor: item.color, borderColor: item.border }}
+          />
+          {item.label}
+        </span>
+      ))}
+      <span className="flex items-center gap-1">
+        <span className="inline-block h-3 w-3 rounded-sm border border-dashed border-[#B0BEC5]" />
+        فقط تشخیصی (بدون رنگ اختصاصی)
+      </span>
     </div>
   );
 }
@@ -86,54 +99,64 @@ function ArchRow({
  * is forced to `dir="ltr"` regardless of the app's RTL layout, because
  * left/right here means the physical screen side, not text direction.
  */
-export function Odontogram({ teeth, selectedFdi, onSelectTooth }: OdontogramProps) {
+export function Odontogram({ patientId, teeth, quadrantFindings, selectedFdi, onSelectTooth, onChanged }: OdontogramProps) {
   const hasPrimary = teeth.some((tooth) => tooth.dentition === "primary");
 
   return (
-    <div dir="ltr" className="flex flex-col items-center gap-3 rounded-xl border border-border bg-white p-6">
-      {hasPrimary && (
-        <ArchRow
-          teeth={rowTeeth(teeth, "upper", "primary")}
-          arch="upper"
-          size={30}
-          amplitude={16}
-          awayFromGapIsUp
-          selectedFdi={selectedFdi}
-          onSelectTooth={onSelectTooth}
-        />
-      )}
-      <ArchRow
-        teeth={rowTeeth(teeth, "upper", "permanent")}
-        arch="upper"
-        size={42}
-        amplitude={36}
-        awayFromGapIsUp
-        selectedFdi={selectedFdi}
-        onSelectTooth={onSelectTooth}
-      />
+    <div dir="ltr" className="space-y-3 rounded-xl border border-border bg-white p-4">
+      <div className="rounded-lg bg-muted/10 py-1 text-center text-xs font-bold text-muted">فک بالا</div>
 
-      <div className="my-1 h-px w-2/3 border-t border-dashed border-border" />
-
-      <ArchRow
-        teeth={rowTeeth(teeth, "lower", "permanent")}
-        arch="lower"
-        size={42}
-        amplitude={36}
-        awayFromGapIsUp={false}
-        selectedFdi={selectedFdi}
-        onSelectTooth={onSelectTooth}
-      />
-      {hasPrimary && (
-        <ArchRow
-          teeth={rowTeeth(teeth, "lower", "primary")}
-          arch="lower"
-          size={30}
-          amplitude={16}
-          awayFromGapIsUp={false}
-          selectedFdi={selectedFdi}
-          onSelectTooth={onSelectTooth}
+      <div className="flex items-center justify-between gap-2">
+        <QuadrantButton
+          patientId={patientId}
+          quadrant={1}
+          label="نیم‌فک راست بالا"
+          findings={findingsFor(quadrantFindings, 1)}
+          onChanged={onChanged}
         />
-      )}
+        <div className="min-w-0 flex-1 overflow-x-auto">
+          <div className="mx-auto flex w-max flex-col items-center gap-1">
+            {hasPrimary && <ToothRow teeth={rowTeeth(teeth, "upper", "primary")} selectedFdi={selectedFdi} onSelectTooth={onSelectTooth} />}
+            <ToothRow teeth={rowTeeth(teeth, "upper", "permanent")} selectedFdi={selectedFdi} onSelectTooth={onSelectTooth} />
+          </div>
+        </div>
+        <QuadrantButton
+          patientId={patientId}
+          quadrant={2}
+          label="نیم‌فک چپ بالا"
+          findings={findingsFor(quadrantFindings, 2)}
+          onChanged={onChanged}
+        />
+      </div>
+
+      <div className="h-px w-full border-t border-dashed border-border" />
+
+      <div className="flex items-center justify-between gap-2">
+        <QuadrantButton
+          patientId={patientId}
+          quadrant={4}
+          label="نیم‌فک راست پایین"
+          findings={findingsFor(quadrantFindings, 4)}
+          onChanged={onChanged}
+        />
+        <div className="min-w-0 flex-1 overflow-x-auto">
+          <div className="mx-auto flex w-max flex-col items-center gap-1">
+            <ToothRow teeth={rowTeeth(teeth, "lower", "permanent")} selectedFdi={selectedFdi} onSelectTooth={onSelectTooth} />
+            {hasPrimary && <ToothRow teeth={rowTeeth(teeth, "lower", "primary")} selectedFdi={selectedFdi} onSelectTooth={onSelectTooth} />}
+          </div>
+        </div>
+        <QuadrantButton
+          patientId={patientId}
+          quadrant={3}
+          label="نیم‌فک چپ پایین"
+          findings={findingsFor(quadrantFindings, 3)}
+          onChanged={onChanged}
+        />
+      </div>
+
+      <div className="rounded-lg bg-muted/10 py-1 text-center text-xs font-bold text-muted">فک پایین</div>
+
+      <ColorLegend />
     </div>
   );
 }

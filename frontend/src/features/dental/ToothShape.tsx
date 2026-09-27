@@ -43,6 +43,9 @@ const REGIONS: { key: "top" | "bottom" | "left" | "right" | "center"; points: st
   { key: "center", points: "32,32 68,32 68,68 32,68" },
 ];
 
+/** A simplified anatomical crown silhouette — rounded dome top, tapering to a rounded base. */
+const TOOTH_PATH = "M 8 34 C 8 12, 92 12, 92 34 L 88 78 C 88 96, 12 96, 12 78 Z";
+
 export function ToothShape({
   arch,
   screenSide,
@@ -56,7 +59,6 @@ export function ToothShape({
   onToggleSurface,
 }: ToothShapeProps) {
   const clipId = `tooth-crown-${useId()}`;
-  const crownRadius = isPrimary ? 30 : 24;
 
   return (
     <button
@@ -70,12 +72,12 @@ export function ToothShape({
         viewBox="0 0 100 100"
         width={size}
         height={size}
-        className={`rounded-md ${isSelected ? "ring-2 ring-primary ring-offset-1" : ""}`}
+        className={isSelected ? "rounded-md ring-2 ring-primary ring-offset-1" : ""}
       >
         <defs>
-          {/* a rounded "crown" silhouette so the icon reads as a tooth, not a plain square */}
+          {/* a rounded crown silhouette so the icon reads as a tooth, not a plain square */}
           <clipPath id={clipId}>
-            <rect x="4" y="4" width="92" height="92" rx={crownRadius} />
+            <path d={TOOTH_PATH} />
           </clipPath>
         </defs>
 
@@ -108,12 +110,8 @@ export function ToothShape({
           })}
         </g>
 
-        <rect
-          x="4"
-          y="4"
-          width="92"
-          height="92"
-          rx={crownRadius}
+        <path
+          d={TOOTH_PATH}
           fill="none"
           stroke={isPending(pendingSurfaces) ? "#2563eb" : "#94A3B8"}
           strokeWidth={1.5}

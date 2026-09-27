@@ -6,105 +6,11 @@ import { ApiError } from "@/lib/api";
 import { listDentalConditions, recordToothCondition, voidToothCondition } from "@/services/dental";
 import type { DentalCondition, GroupedFinding, ToothConditionEntry } from "@/types/dental";
 
-const quadrantLabels: Record<number, string> = {
-  1: "نیم‌فک بالا راست",
-  2: "نیم‌فک بالا چپ",
-  3: "نیم‌فک پایین چپ",
-  4: "نیم‌فک پایین راست",
-};
-
 const archLabels: Record<string, string> = { upper: "فک بالا", lower: "فک پایین" };
 
 interface BaseProps {
   patientId: string;
   onChanged: () => void;
-}
-
-/** یافته‌های نیم‌فک (کوادرانت‌های ۱ تا ۴، مطابق business rules §1.6). */
-export function QuadrantFindings({ patientId, onChanged, findings }: BaseProps & { findings: GroupedFinding[] }) {
-  const [conditions, setConditions] = useState<DentalCondition[]>([]);
-  const [quadrant, setQuadrant] = useState(1);
-  const [conditionId, setConditionId] = useState("");
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    listDentalConditions({ scope: "half_arch" }).then((response) => setConditions(response.data));
-  }, []);
-
-  async function handleAdd() {
-    if (!conditionId) return;
-    setError(null);
-    try {
-      await recordToothCondition(patientId, { dental_condition_catalog_id: conditionId, scope_type: "quadrant", quadrant });
-      setConditionId("");
-      onChanged();
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : "خطا در ثبت.");
-    }
-  }
-
-  async function handleVoid(id: string) {
-    setError(null);
-    try {
-      await voidToothCondition(patientId, id);
-      onChanged();
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : "خطا در حذف.");
-    }
-  }
-
-  return (
-    <div className="rounded-xl border border-border p-4">
-      <h3 className="mb-2 text-sm font-bold">یافته‌های نیم‌فک</h3>
-
-      <ul className="mb-3 space-y-1 text-sm">
-        {findings.flatMap((group) =>
-          group.conditions.map((finding) => (
-            <li key={finding.id} className="flex items-center justify-between">
-              <span>
-                {quadrantLabels[group.quadrant ?? 0]} — {finding.label}
-              </span>
-              <button type="button" className="text-xs text-red-600" onClick={() => handleVoid(finding.id)}>
-                حذف
-              </button>
-            </li>
-          )),
-        )}
-        {findings.length === 0 && <li className="text-muted">ثبت نشده</li>}
-      </ul>
-
-      {error && <p className="mb-2 text-sm text-red-600">{error}</p>}
-
-      <div className="flex flex-col gap-2 sm:flex-row">
-        <select
-          value={quadrant}
-          onChange={(event) => setQuadrant(Number(event.target.value))}
-          className="rounded-lg border border-border px-3 py-2 text-sm"
-        >
-          {Object.entries(quadrantLabels).map(([value, label]) => (
-            <option key={value} value={value}>
-              {label}
-            </option>
-          ))}
-        </select>
-        <select
-          value={conditionId}
-          onChange={(event) => setConditionId(event.target.value)}
-          className="w-full rounded-lg border border-border px-3 py-2 text-sm"
-        >
-          <option value="">انتخاب خدمت...</option>
-          {conditions.map((condition) => (
-            <option key={condition.id} value={condition.id}>
-              {condition.label}
-            </option>
-          ))}
-        </select>
-        <Button type="button" disabled={!conditionId} onClick={handleAdd}>
-          افزودن
-        </Button>
-      </div>
-    </div>
-  );
 }
 
 /** یافته‌های سطح یک فک کامل (بالا/پایین). */

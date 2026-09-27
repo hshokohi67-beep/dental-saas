@@ -1,6 +1,6 @@
 "use client";
 
-import type { GroupedFinding, OdontogramTooth } from "@/types/dental";
+import type { DentalCondition, GroupedFinding, OdontogramTooth } from "@/types/dental";
 import { QuadrantButton } from "./QuadrantButton";
 import { ToothShape } from "./ToothShape";
 
@@ -11,6 +11,12 @@ interface OdontogramProps {
   selectedFdi: number | null;
   onSelectTooth: (tooth: OdontogramTooth) => void;
   onChanged: () => void;
+  activeCondition: DentalCondition | null;
+  pendingTeeth: Set<number>;
+  pendingQuadrants: Set<number>;
+  pendingArches: Set<"upper" | "lower">;
+  onToggleQuadrant: (quadrant: number) => void;
+  onToggleArch: (arch: "upper" | "lower") => void;
 }
 
 export function sortForDisplay(teeth: OdontogramTooth[], screenSide: "left" | "right"): OdontogramTooth[] {
@@ -41,30 +47,37 @@ function toothSize(tooth: OdontogramTooth): number {
 function ToothRow({
   teeth,
   selectedFdi,
+  activeCondition,
+  pendingTeeth,
   onSelectTooth,
 }: {
   teeth: OdontogramTooth[];
   selectedFdi: number | null;
+  activeCondition: DentalCondition | null;
+  pendingTeeth: Set<number>;
   onSelectTooth: (tooth: OdontogramTooth) => void;
 }) {
   if (teeth.length === 0) return null;
 
   return (
     <div className="flex items-end justify-center gap-0.5">
-      {teeth.map((tooth) => (
-        <ToothShape
-          key={tooth.fdi}
-          arch={tooth.arch}
-          screenSide={tooth.screen_side}
-          size={toothSize(tooth)}
-          label={tooth.display_label}
-          isPrimary={tooth.dentition === "primary"}
-          isAnterior={tooth.is_anterior}
-          isSelected={selectedFdi === tooth.fdi}
-          surfaceStatuses={tooth.surface_statuses}
-          onClick={() => onSelectTooth(tooth)}
-        />
-      ))}
+      {teeth.map((tooth) => {
+        const isSelected = activeCondition?.scope === "tooth" ? pendingTeeth.has(tooth.fdi) : selectedFdi === tooth.fdi;
+        return (
+          <ToothShape
+            key={tooth.fdi}
+            arch={tooth.arch}
+            screenSide={tooth.screen_side}
+            size={toothSize(tooth)}
+            label={tooth.display_label}
+            isPrimary={tooth.dentition === "primary"}
+            isAnterior={tooth.is_anterior}
+            isSelected={isSelected}
+            surfaceStatuses={tooth.surface_statuses}
+            onClick={() => onSelectTooth(tooth)}
+          />
+        );
+      })}
     </div>
   );
 }
@@ -100,18 +113,63 @@ function ColorLegend() {
   );
 }
 
+function ArchBar({
+  label,
+  arch,
+  isQuickTarget,
+  isPending,
+  onToggle,
+}: {
+  label: string;
+  arch: "upper" | "lower";
+  isQuickTarget: boolean;
+  isPending: boolean;
+  onToggle: (arch: "upper" | "lower") => void;
+}) {
+  if (!isQuickTarget) {
+    return <div className="rounded-lg bg-muted/10 py-1 text-center text-xs font-bold text-muted">{label}</div>;
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => onToggle(arch)}
+      className={`w-full rounded-lg py-1 text-center text-xs font-bold ${
+        isPending ? "bg-primary/10 text-primary ring-1 ring-primary" : "bg-muted/10 text-muted"
+      }`}
+    >
+      {label}
+    </button>
+  );
+}
+
 /**
  * Rendered in the clinical/mirrored convention (business rules §1.2): the
  * patient's right side is drawn on the screen's left half. This container
  * is forced to `dir="ltr"` regardless of the app's RTL layout, because
  * left/right here means the physical screen side, not text direction.
  */
-export function Odontogram({ patientId, teeth, quadrantFindings, selectedFdi, onSelectTooth, onChanged }: OdontogramProps) {
+export function Odontogram({
+  patientId,
+  teeth,
+  quadrantFindings,
+  selectedFdi,
+  onSelectTooth,
+  onChanged,
+  activeCondition,
+  pendingTeeth,
+  pendingQuadrants,
+  pendingArches,
+  onToggleQuadrant,
+  onToggleArch,
+}: OdontogramProps) {
   const hasPrimary = teeth.some((tooth) => tooth.dentition === "primary");
+  const quadrantQuickMode = activeCondition?.scope === "half_arch";
+  const archQuickMode = activeCondition?.scope === "arch";
 
   return (
     <div dir="ltr" className="space-y-3 rounded-xl border border-border bg-white p-4">
-      <div className="rounded-lg bg-muted/10 py-1 text-center text-xs font-bold text-muted">فک بالا</div>
+      <ArchBar label="فک بالا" arch="upper" isQuickTarget={archQuickMode} isPending={pendingArches.has("upper")} onToggle={onToggleArch} />
 
       <div className="flex items-start justify-between gap-2">
         <QuadrantButton
@@ -120,11 +178,28 @@ export function Odontogram({ patientId, teeth, quadrantFindings, selectedFdi, on
           label="نیم‌فک راست بالا"
           findings={findingsFor(quadrantFindings, 1)}
           onChanged={onChanged}
+          quickMode={quadrantQuickMode}
+          isPending={pendingQuadrants.has(1)}
+          onQuickToggle={() => onToggleQuadrant(1)}
         />
         <div className="min-w-0 flex-1 overflow-x-auto">
           <div className="mx-auto flex w-max flex-col items-center gap-1">
-            {hasPrimary && <ToothRow teeth={rowTeeth(teeth, "upper", "primary")} selectedFdi={selectedFdi} onSelectTooth={onSelectTooth} />}
-            <ToothRow teeth={rowTeeth(teeth, "upper", "permanent")} selectedFdi={selectedFdi} onSelectTooth={onSelectTooth} />
+            {hasPrimary && (
+              <ToothRow
+                teeth={rowTeeth(teeth, "upper", "primary")}
+                selectedFdi={selectedFdi}
+                activeCondition={activeCondition}
+                pendingTeeth={pendingTeeth}
+                onSelectTooth={onSelectTooth}
+              />
+            )}
+            <ToothRow
+              teeth={rowTeeth(teeth, "upper", "permanent")}
+              selectedFdi={selectedFdi}
+              activeCondition={activeCondition}
+              pendingTeeth={pendingTeeth}
+              onSelectTooth={onSelectTooth}
+            />
           </div>
         </div>
         <QuadrantButton
@@ -133,6 +208,9 @@ export function Odontogram({ patientId, teeth, quadrantFindings, selectedFdi, on
           label="نیم‌فک چپ بالا"
           findings={findingsFor(quadrantFindings, 2)}
           onChanged={onChanged}
+          quickMode={quadrantQuickMode}
+          isPending={pendingQuadrants.has(2)}
+          onQuickToggle={() => onToggleQuadrant(2)}
         />
       </div>
 
@@ -145,11 +223,28 @@ export function Odontogram({ patientId, teeth, quadrantFindings, selectedFdi, on
           label="نیم‌فک راست پایین"
           findings={findingsFor(quadrantFindings, 4)}
           onChanged={onChanged}
+          quickMode={quadrantQuickMode}
+          isPending={pendingQuadrants.has(4)}
+          onQuickToggle={() => onToggleQuadrant(4)}
         />
         <div className="min-w-0 flex-1 overflow-x-auto">
           <div className="mx-auto flex w-max flex-col items-center gap-1">
-            <ToothRow teeth={rowTeeth(teeth, "lower", "permanent")} selectedFdi={selectedFdi} onSelectTooth={onSelectTooth} />
-            {hasPrimary && <ToothRow teeth={rowTeeth(teeth, "lower", "primary")} selectedFdi={selectedFdi} onSelectTooth={onSelectTooth} />}
+            <ToothRow
+              teeth={rowTeeth(teeth, "lower", "permanent")}
+              selectedFdi={selectedFdi}
+              activeCondition={activeCondition}
+              pendingTeeth={pendingTeeth}
+              onSelectTooth={onSelectTooth}
+            />
+            {hasPrimary && (
+              <ToothRow
+                teeth={rowTeeth(teeth, "lower", "primary")}
+                selectedFdi={selectedFdi}
+                activeCondition={activeCondition}
+                pendingTeeth={pendingTeeth}
+                onSelectTooth={onSelectTooth}
+              />
+            )}
           </div>
         </div>
         <QuadrantButton
@@ -158,10 +253,13 @@ export function Odontogram({ patientId, teeth, quadrantFindings, selectedFdi, on
           label="نیم‌فک چپ پایین"
           findings={findingsFor(quadrantFindings, 3)}
           onChanged={onChanged}
+          quickMode={quadrantQuickMode}
+          isPending={pendingQuadrants.has(3)}
+          onQuickToggle={() => onToggleQuadrant(3)}
         />
       </div>
 
-      <div className="rounded-lg bg-muted/10 py-1 text-center text-xs font-bold text-muted">فک پایین</div>
+      <ArchBar label="فک پایین" arch="lower" isQuickTarget={archQuickMode} isPending={pendingArches.has("lower")} onToggle={onToggleArch} />
 
       <ColorLegend />
     </div>

@@ -13,6 +13,10 @@ interface QuadrantButtonProps {
   label: string;
   findings: ToothConditionEntry[];
   onChanged: () => void;
+  /** When a half-arch service is locked in the active-service bar, clicking just toggles this quadrant as a target instead of opening the popover. */
+  quickMode?: boolean;
+  isPending?: boolean;
+  onQuickToggle?: () => void;
 }
 
 /**
@@ -20,7 +24,16 @@ interface QuadrantButtonProps {
  * reference clinic software's layout (quadrant controls sit beside the
  * teeth they cover, not in a separate section far below the chart).
  */
-export function QuadrantButton({ patientId, quadrant, label, findings, onChanged }: QuadrantButtonProps) {
+export function QuadrantButton({
+  patientId,
+  quadrant,
+  label,
+  findings,
+  onChanged,
+  quickMode = false,
+  isPending = false,
+  onQuickToggle,
+}: QuadrantButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [conditions, setConditions] = useState<DentalCondition[]>([]);
   const [conditionId, setConditionId] = useState("");
@@ -59,16 +72,27 @@ export function QuadrantButton({ patientId, quadrant, label, findings, onChanged
     <div className="relative">
       <button
         type="button"
-        onClick={() => (isOpen ? setIsOpen(false) : open())}
+        onClick={() => {
+          if (quickMode) {
+            onQuickToggle?.();
+            return;
+          }
+          if (isOpen) setIsOpen(false);
+          else open();
+        }}
         className={`whitespace-nowrap rounded-lg border px-2 py-1 text-xs ${
-          findings.length > 0 ? "border-primary text-primary" : "border-border text-muted"
+          isPending
+            ? "border-primary bg-primary/10 font-medium text-primary ring-1 ring-primary"
+            : findings.length > 0
+              ? "border-primary text-primary"
+              : "border-border text-muted"
         }`}
       >
         {label}
         {findings.length > 0 && ` (${findings.length})`}
       </button>
 
-      {isOpen && (
+      {!quickMode && isOpen && (
         <div className="absolute z-10 mt-1 w-72 space-y-2 rounded-lg border border-border bg-white p-3 shadow-md">
           <ul className="space-y-1 text-xs">
             {findings.map((finding) => (

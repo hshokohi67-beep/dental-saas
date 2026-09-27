@@ -23,20 +23,34 @@ class DefaultRoles
                 PermissionCatalog::BRANCHES_VIEW,
                 PermissionCatalog::STAFF_VIEW,
                 PermissionCatalog::STAFF_MANAGE,
+                PermissionCatalog::PATIENTS_VIEW,
+                PermissionCatalog::PATIENTS_MANAGE,
+                PermissionCatalog::PATIENTS_MERGE,
             ],
             'Doctor' => [
                 PermissionCatalog::BRANCHES_VIEW,
                 PermissionCatalog::STAFF_VIEW,
+                PermissionCatalog::PATIENTS_VIEW,
+                PermissionCatalog::PATIENTS_MANAGE,
+                PermissionCatalog::PATIENTS_MEDICAL_VIEW,
+                PermissionCatalog::PATIENTS_MEDICAL_MANAGE,
             ],
             'Assistant' => [
                 PermissionCatalog::BRANCHES_VIEW,
+                PermissionCatalog::PATIENTS_VIEW,
+                PermissionCatalog::PATIENTS_MEDICAL_VIEW,
             ],
+            // Secretary: intentionally excludes patients.medical.* — the front-desk role
+            // never sees clinical tabs (master prompt / legacy business rule §1.8).
             'Reception' => [
                 PermissionCatalog::BRANCHES_VIEW,
                 PermissionCatalog::STAFF_VIEW,
+                PermissionCatalog::PATIENTS_VIEW,
+                PermissionCatalog::PATIENTS_MANAGE,
             ],
             'Accounting' => [
                 PermissionCatalog::BRANCHES_VIEW,
+                PermissionCatalog::PATIENTS_VIEW,
             ],
             'Inventory' => [
                 PermissionCatalog::BRANCHES_VIEW,

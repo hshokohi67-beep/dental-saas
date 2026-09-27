@@ -18,6 +18,16 @@ class PermissionCatalog
 
     public const ROLES_MANAGE = 'roles.manage';
 
+    public const PATIENTS_VIEW = 'patients.view';
+
+    public const PATIENTS_MANAGE = 'patients.manage';
+
+    public const PATIENTS_MERGE = 'patients.merge';
+
+    public const PATIENTS_MEDICAL_VIEW = 'patients.medical.view';
+
+    public const PATIENTS_MEDICAL_MANAGE = 'patients.medical.manage';
+
     /**
      * @return list<string>
      */
@@ -29,6 +39,11 @@ class PermissionCatalog
             self::STAFF_VIEW,
             self::STAFF_MANAGE,
             self::ROLES_MANAGE,
+            self::PATIENTS_VIEW,
+            self::PATIENTS_MANAGE,
+            self::PATIENTS_MERGE,
+            self::PATIENTS_MEDICAL_VIEW,
+            self::PATIENTS_MEDICAL_MANAGE,
         ];
     }
 }

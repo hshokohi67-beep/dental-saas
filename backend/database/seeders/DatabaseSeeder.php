@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call(PlanSeeder::class);
+        $this->call(MedicalConditionSeeder::class);
 
         User::factory()->create([
             'name' => 'مدیر پلتفرم',

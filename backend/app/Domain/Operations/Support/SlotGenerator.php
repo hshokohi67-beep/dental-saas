@@ -2,7 +2,7 @@
 
 namespace App\Domain\Operations\Support;
 
-use Illuminate\Support\Carbon;
+use Carbon\Carbon;
 
 /**
  * Pure slot-slicing logic — takes plain arrays (no Eloquent/DB access), so

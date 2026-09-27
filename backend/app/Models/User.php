@@ -39,11 +39,17 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * @return BelongsTo<Tenant, $this>
+     */
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class);
     }
 
+    /**
+     * @return HasOne<Staff, $this>
+     */
     public function staff(): HasOne
     {
         return $this->hasOne(Staff::class);

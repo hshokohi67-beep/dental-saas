@@ -36,56 +36,89 @@ class Patient extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Tenant, $this>
+     */
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class);
     }
 
+    /**
+     * @return BelongsTo<Branch, $this>
+     */
     public function branch(): BelongsTo
     {
         return $this->belongsTo(Branch::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function createdBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    /**
+     * @return BelongsTo<Patient, $this>
+     */
     public function mergedInto(): BelongsTo
     {
         return $this->belongsTo(Patient::class, 'merged_into_id');
     }
 
+    /**
+     * @return HasMany<Patient, $this>
+     */
     public function mergedFrom(): HasMany
     {
         return $this->hasMany(Patient::class, 'merged_into_id');
     }
 
+    /**
+     * @return HasMany<PatientMedicalCondition, $this>
+     */
     public function medicalConditions(): HasMany
     {
         return $this->hasMany(PatientMedicalCondition::class);
     }
 
+    /**
+     * @return HasMany<PatientAllergy, $this>
+     */
     public function allergies(): HasMany
     {
         return $this->hasMany(PatientAllergy::class);
     }
 
+    /**
+     * @return HasMany<PatientMedication, $this>
+     */
     public function medications(): HasMany
     {
         return $this->hasMany(PatientMedication::class);
     }
 
+    /**
+     * @return HasMany<PatientTimelineEvent, $this>
+     */
     public function timelineEvents(): HasMany
     {
         return $this->hasMany(PatientTimelineEvent::class)->latest('occurred_at');
     }
 
+    /**
+     * @return BelongsTo<Staff, $this>
+     */
     public function primaryDoctor(): BelongsTo
     {
         return $this->belongsTo(Staff::class, 'primary_doctor_staff_id');
     }
 
+    /**
+     * @return HasMany<PatientToothCondition, $this>
+     */
     public function toothConditions(): HasMany
     {
         return $this->hasMany(PatientToothCondition::class);

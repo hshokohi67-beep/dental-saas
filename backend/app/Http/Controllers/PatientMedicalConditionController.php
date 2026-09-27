@@ -30,7 +30,7 @@ class PatientMedicalConditionController extends Controller
         abort_unless($link->patient_id === $patient->id, 404);
 
         $link->loadMissing('condition');
-        $label = $link->condition?->label ?? $link->medical_condition_id;
+        $label = $link->condition->label;
         $link->delete();
 
         PatientTimelineRecorder::record(

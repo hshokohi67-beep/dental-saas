@@ -22,16 +22,25 @@ class PatientMedicalCondition extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Patient, $this>
+     */
     public function patient(): BelongsTo
     {
         return $this->belongsTo(Patient::class);
     }
 
+    /**
+     * @return BelongsTo<MedicalCondition, $this>
+     */
     public function condition(): BelongsTo
     {
         return $this->belongsTo(MedicalCondition::class, 'medical_condition_id');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function recordedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'recorded_by');

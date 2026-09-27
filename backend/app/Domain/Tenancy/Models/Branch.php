@@ -42,16 +42,25 @@ class Branch extends Model
         });
     }
 
+    /**
+     * @return BelongsTo<Tenant, $this>
+     */
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class);
     }
 
+    /**
+     * @return HasMany<Staff, $this>
+     */
     public function staff(): HasMany
     {
         return $this->hasMany(Staff::class);
     }
 
+    /**
+     * @return HasMany<Room, $this>
+     */
     public function rooms(): HasMany
     {
         return $this->hasMany(Room::class);

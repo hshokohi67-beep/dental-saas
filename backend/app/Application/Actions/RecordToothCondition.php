@@ -53,9 +53,6 @@ class RecordToothCondition
         });
     }
 
-    /**
-     * @param  array{tooth_number?: ?int}  $data
-     */
     private function assertScopeMatchesCatalog(DentalConditionCatalog $condition, string $scopeType): void
     {
         if (! $condition->isApplicableToScope($scopeType)) {
@@ -66,7 +63,7 @@ class RecordToothCondition
     }
 
     /**
-     * @param  array{tooth_number?: ?int}  $data
+     * @param  array{scope_type: string, tooth_number?: ?int}  $data
      */
     private function assertDentitionMatches(DentalConditionCatalog $condition, array $data): void
     {

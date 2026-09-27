@@ -33,21 +33,33 @@ class PatientToothCondition extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Patient, $this>
+     */
     public function patient(): BelongsTo
     {
         return $this->belongsTo(Patient::class);
     }
 
+    /**
+     * @return BelongsTo<DentalConditionCatalog, $this>
+     */
     public function condition(): BelongsTo
     {
         return $this->belongsTo(DentalConditionCatalog::class, 'dental_condition_catalog_id');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function recordedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'recorded_by');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function voidedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'voided_by');
@@ -58,6 +70,10 @@ class PatientToothCondition extends Model
         return $this->voided_at !== null;
     }
 
+    /**
+     * @param  Builder<PatientToothCondition>  $query
+     * @return Builder<PatientToothCondition>
+     */
     public function scopeActive(Builder $query): Builder
     {
         return $query->whereNull('voided_at');

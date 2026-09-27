@@ -38,21 +38,33 @@ class StaffShift extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Staff, $this>
+     */
     public function staff(): BelongsTo
     {
         return $this->belongsTo(Staff::class);
     }
 
+    /**
+     * @return BelongsTo<Branch, $this>
+     */
     public function branch(): BelongsTo
     {
         return $this->belongsTo(Branch::class);
     }
 
+    /**
+     * @return BelongsTo<Room, $this>
+     */
     public function room(): BelongsTo
     {
         return $this->belongsTo(Room::class);
     }
 
+    /**
+     * @return BelongsTo<DentalConditionCatalog, $this>
+     */
     public function dentalConditionCatalog(): BelongsTo
     {
         return $this->belongsTo(DentalConditionCatalog::class);

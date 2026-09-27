@@ -23,6 +23,9 @@ class MedicalCondition extends Model
         ];
     }
 
+    /**
+     * @return HasMany<PatientMedicalCondition, $this>
+     */
     public function patientLinks(): HasMany
     {
         return $this->hasMany(PatientMedicalCondition::class);

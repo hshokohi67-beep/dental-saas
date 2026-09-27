@@ -49,6 +49,9 @@ class DentalConditionCatalog extends Model
         return in_array($dentition, $this->dentitions, true);
     }
 
+    /**
+     * @return HasMany<PatientToothCondition, $this>
+     */
     public function patientToothConditions(): HasMany
     {
         return $this->hasMany(PatientToothCondition::class);
